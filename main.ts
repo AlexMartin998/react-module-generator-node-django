@@ -7,6 +7,7 @@ import {
   addSAfterFirstWord,
   getActionsCode,
   getCreatePageCode,
+  getSaveFormComponentCode,
   getTablePageCode,
   getUpdatePageCode,
 } from './code-generation';
@@ -200,8 +201,7 @@ const writeActions = () => {
     }
 
     // // // write table page index file
-    const tablePageIndexFilename = 'index.ts';
-    const tablePageIndexFile = `${tablePagePathModule}/pages/${tablePageIndexFilename}`;
+    const tablePageIndexFile = `${tablePagePathModule}/pages/${indexFilename}`;
     if (!fs.existsSync(tablePageIndexFile)) {
       fs.writeFileSync(
         tablePageIndexFile,
@@ -220,7 +220,87 @@ export * from './${updPageFilenameWithoutExt}';`
       }
     }
 
-    //
+    // // // // write save form component ---------------
+    // // set save form component path
+    const saveFormComponentFilename = `Save${interfaceName}`;
+    const saveFormComponentPathDir = `${tablePagePathModule}/shared/components/${saveFormComponentFilename}`;
+    const saveFormComponentPathFile = `${saveFormComponentPathDir}/${saveFormComponentFilename}.tsx`;
+    console.log({
+      saveFormComponentFilename,
+      saveFormComponentPathDir,
+      saveFormComponentPathFile,
+    });
+
+    // // write save form component file if not exists, and if exists delete it
+    if (fs.existsSync(saveFormComponentPathFile))
+      fs.unlinkSync(saveFormComponentPathFile);
+    if (!fs.existsSync(saveFormComponentPathFile)) {
+      // if not exists path and directories create them
+      if (!fs.existsSync(saveFormComponentPathDir)) {
+        fs.mkdirSync(saveFormComponentPathDir, { recursive: true });
+      }
+
+      fs.writeFileSync(
+        saveFormComponentPathFile,
+        getSaveFormComponentCode({
+          interfaceName,
+          interfaceObj,
+          actionsPath,
+          parentModule,
+          firstChildModule,
+        })
+      );
+    }
+
+    // // write save form component index file
+    const saveFormComponentIndexFile = `${saveFormComponentPathDir}/${indexFilename}`;
+    if (!fs.existsSync(saveFormComponentIndexFile)) {
+      fs.writeFileSync(
+        saveFormComponentIndexFile,
+        `export { default as ${saveFormComponentFilename} } from './${saveFormComponentFilename}';`
+      );
+    } else {
+      // add import line to module index file if it's not added yet
+      const saveFormComponentIndexContent = fs.readFileSync(
+        saveFormComponentIndexFile,
+        'utf8'
+      );
+      if (!saveFormComponentIndexContent.includes(saveFormComponentFilename)) {
+        fs.appendFileSync(
+          saveFormComponentIndexFile,
+          `export * from './${saveFormComponentFilename}';`
+        );
+      }
+    }
+
+    // // write save form component index module file
+    const saveFormComponentPathComponentDir = `${tablePagePathModule}/shared/components`;
+    const saveFormComponentIndexModuleFile = `${saveFormComponentPathComponentDir}/${indexFilename}`;
+    console.log({
+      saveFormComponentPathComponentDir,
+      saveFormComponentIndexModuleFile,
+    });
+
+    if (!fs.existsSync(saveFormComponentIndexModuleFile)) {
+      fs.writeFileSync(
+        saveFormComponentIndexModuleFile,
+        `export * from './${saveFormComponentFilename}';`
+      );
+    } else {
+      // add import line to module index file if it's not added yet
+      const saveFormComponentIndexModuleContent = fs.readFileSync(
+        saveFormComponentIndexModuleFile,
+        'utf8'
+      );
+      if (
+        !saveFormComponentIndexModuleContent.includes(saveFormComponentFilename)
+      ) {
+        fs.appendFileSync(
+          saveFormComponentIndexModuleFile,
+          `export * from './${saveFormComponentFilename}';`
+        );
+      }
+    }
   } else {
     console.log(`No se encontró la interfaz ${interfaceName} en ${tsFile}`);
   }

@@ -1,4 +1,5 @@
 /* eslint-disable indent */
+import { InterfaceDeclaration } from 'ts-morph';
 import { getFiltersButId, toKebabCase } from './helpers';
 
 type GetActionsCodeParams = {
@@ -10,8 +11,7 @@ export function getActionsCode({
   interfaceName,
   interfaceObj,
 }: GetActionsCodeParams): string {
-  return `
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+  return `import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
 import { ${interfaceName}, ${
@@ -166,8 +166,7 @@ export function getTablePageCode({
 
   const returnUrl = `returnUrl${addSAfterFirstWord(interfaceName)}Page`;
 
-  return `
-import { MRT_ColumnDef } from 'material-react-table';
+  return `import { MRT_ColumnDef } from 'material-react-table';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -322,6 +321,36 @@ export default Update${interfaceName}Page;
 `;
 }
 
+export function getSaveFormComponentCode({
+  interfaceName,
+  // interfaceText,
+  actionsPath,
+  interfaceObj,
+  parentModule,
+  firstChildModule,
+}: GetActionsCodeParams & {
+  actionsPath: string;
+  parentModule: string;
+  firstChildModule: string;
+}): string {
+  // find firstChildModule in actionsPath and slipt it
+  const actionsPathSplit = actionsPath.split(firstChildModule);
+  const actionsPathModule = (actionsPathSplit[0] + firstChildModule).replace(
+    'src/',
+    '@/' // replace src/ with @/
+  );
+
+  return `import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+
+${getCustomComponentsImportsBasedOnType(interfaceObj)}
+import { ${interfaceName}, ${
+    addSAfterFirstWord(interfaceName.split('PaginatedRes')[0]) + 'PaginatedRes'
+  } } from '@/shared/interfaces';
+  `;
+}
+
 // // ------------------------------ Helpers
 export function addSAfterFirstWord(str: string): string {
   const firstCapitalIndex = str
@@ -338,8 +367,7 @@ export function genColumnsTable(interfaceObj: any): string {
       const capitalized =
         humanizedName.charAt(0).toUpperCase() + humanizedName.slice(1);
 
-      return `
-      {
+      return `{
         accessorKey: '${prop.getName()}',
         header: '${capitalized}',
         size: 180,
@@ -347,4 +375,70 @@ export function genColumnsTable(interfaceObj: any): string {
     })
     .join(',\n  ');
   return columns;
+}
+
+export function getCustomComponentsImportsBasedOnType(
+  interfaceObj: InterfaceDeclaration | undefined
+) {
+  if (!interfaceObj) return;
+
+  // get props
+  const properties = interfaceObj.getProperties();
+
+  const componentsSet = new Set<string>();
+  properties.forEach(prop => {
+    const type = prop.getType().getText();
+    if (type === 'string') {
+      componentsSet.add('CustomTextField');
+    }
+    if (type === 'number' && !prop.getName().includes('id_')) {
+      componentsSet.add('CustomNumberTextField');
+    }
+    if (type === 'boolean') {
+      componentsSet.add('SampleCheckbox');
+    }
+  });
+
+  const componentsArr = Array.from(componentsSet);
+  if (componentsArr.length > 0) {
+    return `import {\n  ${componentsArr.join(
+      ',\n  '
+    )}\n} from '@/shared/components';`;
+  }
+}
+
+export function setCustomComponentBasedOnType(
+  interfaceObj: InterfaceDeclaration | undefined,
+  saveFormComponentPathComponentDir: string
+) {
+  if (!interfaceObj) return;
+  console.log(
+    'saveFormComponentPathComponentDir: ',
+    saveFormComponentPathComponentDir
+  );
+
+  // get props
+  const properties = interfaceObj.getProperties();
+
+  const componentsArr = properties.map(prop => {
+    const type = prop.getType().getText();
+    if (type === 'string') {
+      return `<CustomTextField
+        label="${prop.getName().replace(/_/g, ' ')}"
+        name="${prop.getName()}"
+        control={form.control}
+        defaultValue={form.getValues('${prop.getName()}')}
+        error={errors.${prop.getName()}}
+        helperText={errors.${prop.getName()}?.message}
+      />`;
+    }
+    if (type === 'number' && !prop.getName().includes('id_')) {
+      console.log('number');
+    }
+    if (type === 'boolean') {
+      console.log('boolean');
+    }
+  });
+
+  return componentsArr.join('\n');
 }
