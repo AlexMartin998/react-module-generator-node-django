@@ -8,6 +8,7 @@ import {
   getActionsCode,
   getCreatePageCode,
   getTablePageCode,
+  getUpdatePageCode,
 } from './code-generation';
 import { toKebabCase } from './helpers';
 
@@ -140,7 +141,7 @@ const writeActions = () => {
       );
     }
 
-    // // //* create page
+    // // // // write create page ---------------
     // // set create page path
     const createPageFilenameWithoutExt = `Create${interfaceName}Page`;
     const createPageFilename = `${createPageFilenameWithoutExt}.tsx`;
@@ -169,15 +170,44 @@ const writeActions = () => {
       );
     }
 
-    // // //* upd page
+    // // // // write upd page ---------------
+    // // set upd page path
+    const updPageFilenameWithoutExt = `Update${interfaceName}Page`;
+    const updPageFilename = `${updPageFilenameWithoutExt}.tsx`;
+    const updPagePathDir = `${tablePagePathModule}/pages/${updPageFilenameWithoutExt}`;
+    const updPagePathFile = `${updPagePathDir}/${updPageFilename}`;
 
-    // // write table page index file
+    // // write upd page file if not exists, and if exists delete it
+    if (fs.existsSync(updPagePathFile)) fs.unlinkSync(updPagePathFile);
+    if (!fs.existsSync(updPagePathFile)) {
+      // if not exists path and directories create them
+      if (!fs.existsSync(updPagePathDir)) {
+        const updPageBarrel = `${updPagePathDir}/index.ts`;
+
+        fs.mkdirSync(updPagePathDir, { recursive: true });
+        fs.writeFileSync(
+          updPageBarrel,
+          `export { default as ${updPageFilenameWithoutExt} } from './${updPageFilenameWithoutExt}';`
+        );
+      }
+
+      fs.writeFileSync(
+        updPagePathFile,
+        getUpdatePageCode({
+          interfaceName,
+        })
+      );
+    }
+
+    // // // write table page index file
     const tablePageIndexFilename = 'index.ts';
     const tablePageIndexFile = `${tablePagePathModule}/pages/${tablePageIndexFilename}`;
     if (!fs.existsSync(tablePageIndexFile)) {
       fs.writeFileSync(
         tablePageIndexFile,
-        `export * from './${tablePageFilenameWithoutExt}';`
+        `export * from './${tablePageFilenameWithoutExt}';
+export * from './${createPageFilenameWithoutExt}';
+export * from './${updPageFilenameWithoutExt}';`
       );
     } else {
       // add import line to module index file if it's not added yet

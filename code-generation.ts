@@ -297,8 +297,7 @@ export default ${addSAfterFirstWord(interfaceName)}Page;
 }
 
 export function getCreatePageCode({ interfaceName }): string {
-  return `
-import {Save${interfaceName}Form} from './../../shared/components';
+  return `import { Save${interfaceName}Form } from './../../shared/components';
 
 export type Create${interfaceName}PageProps = {};
 
@@ -307,6 +306,19 @@ const Create${interfaceName}Page: React.FC<Create${interfaceName}PageProps> = ()
 };
 
 export default Create${interfaceName}Page;
+`;
+}
+
+export function getUpdatePageCode({ interfaceName }): string {
+  return `import { Save${interfaceName}Form } from './../../shared/components';
+
+export type Update${interfaceName}PageProps = {};
+
+const Update${interfaceName}Page: React.FC<Update${interfaceName}PageProps> = () => {
+  return <Save${interfaceName}Form title="Editar ${interfaceName}" />;
+};
+
+export default Update${interfaceName}Page;
 `;
 }
 
