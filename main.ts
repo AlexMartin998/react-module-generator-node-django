@@ -72,8 +72,6 @@ const writeActions = () => {
     // add import line to module index file
     const indexPathModuleInterface = `${interfaceMainPath}/${indexFilename}`;
     if (!fs.existsSync(indexPathModuleInterface)) {
-      console.log(indexPathModuleInterface);
-      // return;
       fs.writeFileSync(
         indexPathModuleInterface,
         `export * from './${toKebabCase(interfaceName)}.interface';`
@@ -102,8 +100,8 @@ const writeActions = () => {
       }
     }
 
-    // // write table page
-    // set table page path
+    // // // // write table page ---------------
+    // // set table page path
     const tablePagePathModule = `src/${parentModule}/${firstChildModule}`;
 
     const tablePageFilenameWithoutExt = `${addSAfterFirstWord(
@@ -113,7 +111,7 @@ const writeActions = () => {
     const tablePagePathDir = `${tablePagePathModule}/pages/${tablePageFilenameWithoutExt}`;
     const tablePagePathFile = `${tablePagePathDir}/${tablePageFilename}`;
 
-    // write table page file if not exists, and if exists delete it
+    // // write table page file if not exists, and if exists delete it
     if (fs.existsSync(tablePagePathFile)) fs.unlinkSync(tablePagePathFile);
     if (!fs.existsSync(tablePagePathFile)) {
       // if not exists path and directories create them
@@ -139,6 +137,27 @@ const writeActions = () => {
         })
       );
     }
+
+    // // write table page index file
+    const tablePageIndexFilename = 'index.ts';
+    const tablePageIndexFile = `${tablePagePathModule}/pages/${tablePageIndexFilename}`;
+    if (!fs.existsSync(tablePageIndexFile)) {
+      fs.writeFileSync(
+        tablePageIndexFile,
+        `export * from './${tablePageFilenameWithoutExt}';`
+      );
+    } else {
+      // add import line to module index file if it's not added yet
+      const tablePageIndexContent = fs.readFileSync(tablePageIndexFile, 'utf8');
+      if (!tablePageIndexContent.includes(tablePageFilenameWithoutExt)) {
+        fs.appendFileSync(
+          tablePageIndexFile,
+          `export * from './${tablePageFilenameWithoutExt}';`
+        );
+      }
+    }
+
+    //
   } else {
     console.log(`No se encontró la interfaz ${interfaceName} en ${tsFile}`);
   }
