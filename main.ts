@@ -101,6 +101,7 @@ const writeActions = () => {
     }
 
     // // // // write table page ---------------
+    // // //* table page
     // // set table page path
     const tablePagePathModule = `src/${parentModule}/${firstChildModule}`;
 
@@ -137,6 +138,21 @@ const writeActions = () => {
         })
       );
     }
+
+    // // //* create page
+    // // set create page path
+    const createPageFilenameWithoutExt = `Create${interfaceName}Page`;
+    const createPageFilename = `${createPageFilenameWithoutExt}.tsx`;
+    const createPagePathDir = `${tablePagePathModule}/pages/${createPageFilenameWithoutExt}`;
+    const createPagePathFile = `${createPagePathDir}/${createPageFilename}`;
+    console.log({
+      createPageFilenameWithoutExt,
+      createPageFilename,
+      createPagePathDir,
+      createPagePathFile,
+    });
+
+    // // //* upd page
 
     // // write table page index file
     const tablePageIndexFilename = 'index.ts';
