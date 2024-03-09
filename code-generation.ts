@@ -330,7 +330,7 @@ export function getSaveFormComponentCode({
   // interfaceText,
   actionsPath,
   interfaceObj,
-  parentModule,
+  // parentModule,
   firstChildModule,
 }: GetActionsCodeParams & {
   actionsPath: string;
@@ -345,6 +345,7 @@ export function getSaveFormComponentCode({
   );
 
   return `import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
@@ -354,11 +355,78 @@ import { ${interfaceName}, ${
     addSAfterFirstWord(interfaceName.split('PaginatedRes')[0]) + 'PaginatedRes'
   } } from '@/shared/interfaces';
 import { ${interfaceName.toLowerCase()}Schema } from '@/shared/utils';
-import { useCreate${interfaceName}, useUpdate${interfaceName} } from '${actionsPathModule}';
+import { 
+  useCreate${interfaceName}, 
+  useUpdate${interfaceName},
+  Create${interfaceName}Params,
+} from '${actionsPathModule}';
 import { ${getReturnUrlTablePageVarName(interfaceName)} } from '../../../pages';
 
+export interface Save${interfaceName}Props {
+  title: string;
+  ${interfaceName.toLowerCase()}?: ${interfaceName};
+}
 
-  `;
+type SaveFormData =  Create${interfaceName}Params & {};
+
+const Save${interfaceName}: React.FC<Save${interfaceName}Props> = ({ title, ${interfaceName.toLowerCase()} } ) => {
+  const navigate = useNavigate();
+
+  ///* form
+  const form = useForm<SaveFormData>({
+    resolver: yupResolver(${interfaceName.toLowerCase()}Schema) as any,
+  });
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = form;
+
+  ///* mutations
+  const create${interfaceName}Mutation = useCreate${interfaceName}({
+    navigate,
+    returnUrl: ${getReturnUrlTablePageVarName(interfaceName)},
+  });
+  const update${interfaceName}Mutation = useUpdate${interfaceName}({
+    navigate,
+    returnUrl: ${getReturnUrlTablePageVarName(interfaceName)},
+  });
+
+  ///* handlers
+  const onSave = (data: SaveFormData) => {
+    if (!isValid) return;
+
+    ///* upd
+    if (${interfaceName.toLowerCase()}?.id_${interfaceName.toLowerCase()}) {
+      update${interfaceName}Mutation.mutate({ id: ${interfaceName.toLowerCase()}.id_${interfaceName.toLowerCase()}, data }
+      );
+      return;
+    }
+
+    ///* create
+    create${interfaceName}Mutation.mutate(data);
+  };
+
+  ///* effects
+  useEffect(() => {
+    if (!${interfaceName.toLowerCase()}?.id_${interfaceName.toLowerCase()}) return;
+    reset(${interfaceName.toLowerCase()});
+  }, [${interfaceName.toLowerCase()}, reset]);
+
+
+  return (
+    <SingleFormBoxScene
+      titlePage={title}
+      onCancel={() => navigate(${getReturnUrlTablePageVarName(interfaceName)})}
+      onSave={handleSubmit(onSave, () => {})}
+    >${setCustomComponentBasedOnType(interfaceObj, actionsPathModule)}
+    </SingleFormBoxScene>
+  );
+};
+
+export default Save${interfaceName};
+`;
 }
 
 // // ------------------------------ Helpers
@@ -412,6 +480,7 @@ export function getCustomComponentsImportsBasedOnType(
 
   const componentsArr = Array.from(componentsSet);
   if (componentsArr.length > 0) {
+    componentsArr.push('SingleFormBoxScene');
     return `import {\n  ${componentsArr.join(
       ',\n  '
     )}\n} from '@/shared/components';`;
@@ -434,13 +503,15 @@ export function setCustomComponentBasedOnType(
   const componentsArr = properties.map(prop => {
     const type = prop.getType().getText();
     if (type === 'string') {
-      return `<CustomTextField
+      return `
+      <CustomTextField
         label="${prop.getName().replace(/_/g, ' ')}"
         name="${prop.getName()}"
         control={form.control}
         defaultValue={form.getValues('${prop.getName()}')}
         error={errors.${prop.getName()}}
         helperText={errors.${prop.getName()}?.message}
+        size={gridSizeMdLg6}
       />`;
     }
     if (type === 'number' && !prop.getName().includes('id_')) {
