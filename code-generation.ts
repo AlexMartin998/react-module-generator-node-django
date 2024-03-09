@@ -3,8 +3,8 @@ import { getFiltersButId, toKebabCase } from './helpers';
 
 type GetActionsCodeParams = {
   interfaceName: string;
-  interfaceText: string;
-  interfaceObj: any;
+  interfaceText?: string;
+  interfaceObj?: any;
 };
 export function getActionsCode({
   interfaceName,
@@ -157,7 +157,6 @@ export function getTablePageCode({
   parentModule: string;
   firstChildModule: string;
 }): string {
-  console.log({ interfaceName, actionsPath, parentModule, firstChildModule });
   // find firstChildModule in actionsPath and slipt it
   const actionsPathSplit = actionsPath.split(firstChildModule);
   const actionsPathModule = (actionsPathSplit[0] + firstChildModule).replace(
@@ -295,6 +294,20 @@ const ${addSAfterFirstWord(interfaceName)}Page: React.FC<${addSAfterFirstWord(
 
 export default ${addSAfterFirstWord(interfaceName)}Page;
   `;
+}
+
+export function getCreatePageCode({ interfaceName }): string {
+  return `
+import {Save${interfaceName}Form} from './../../shared/components';
+
+export type Create${interfaceName}PageProps = {};
+
+const Create${interfaceName}Page: React.FC<Create${interfaceName}PageProps> = () => {
+  return <Save${interfaceName}Form title="Crear ${interfaceName}" />;
+};
+
+export default Create${interfaceName}Page;
+`;
 }
 
 // // ------------------------------ Helpers

@@ -6,6 +6,7 @@ import { hideBin } from 'yargs/helpers';
 import {
   addSAfterFirstWord,
   getActionsCode,
+  getCreatePageCode,
   getTablePageCode,
 } from './code-generation';
 import { toKebabCase } from './helpers';
@@ -145,12 +146,28 @@ const writeActions = () => {
     const createPageFilename = `${createPageFilenameWithoutExt}.tsx`;
     const createPagePathDir = `${tablePagePathModule}/pages/${createPageFilenameWithoutExt}`;
     const createPagePathFile = `${createPagePathDir}/${createPageFilename}`;
-    console.log({
-      createPageFilenameWithoutExt,
-      createPageFilename,
-      createPagePathDir,
-      createPagePathFile,
-    });
+
+    // // write create page file if not exists, and if exists delete it
+    if (fs.existsSync(createPagePathFile)) fs.unlinkSync(createPagePathFile);
+    if (!fs.existsSync(createPagePathFile)) {
+      // if not exists path and directories create them
+      if (!fs.existsSync(createPagePathDir)) {
+        const createPageBarrel = `${createPagePathDir}/index.ts`;
+
+        fs.mkdirSync(createPagePathDir, { recursive: true });
+        fs.writeFileSync(
+          createPageBarrel,
+          `export { default as ${createPageFilenameWithoutExt} } from './${createPageFilenameWithoutExt}';`
+        );
+      }
+
+      fs.writeFileSync(
+        createPagePathFile,
+        getCreatePageCode({
+          interfaceName,
+        })
+      );
+    }
 
     // // //* upd page
 
