@@ -260,7 +260,10 @@ const ${addSAfterFirstWord(interfaceName)}Page: React.FC<${addSAfterFirstWord(
 
   return (
     <SingleTableBoxScene
-      title="${interfaceName}"
+      title="${interfaceName
+        .split(/(?=[A-Z])/)
+        .join(' ')
+        .replace(/_/g, ' ')}"
       createPageUrl={\`\${${returnUrl}}/crear\`}
     >
       <CustomSearch
@@ -272,7 +275,6 @@ const ${addSAfterFirstWord(interfaceName)}Page: React.FC<${addSAfterFirstWord(
       <CustomTable<${interfaceName}>
         columns={columns}
         data={${addSAfterFirstWord(interfaceName)}PagingRes?.data?.data || []}
-        //
         isLoading={isLoading}
         isRefetching={isRefetching}
         // // search
