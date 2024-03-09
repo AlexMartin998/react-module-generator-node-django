@@ -16,7 +16,7 @@ import { toKebabCase } from './helpers';
 const argv = yargs(hideBin(process.argv)).argv;
 
 // bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/del/test-pro.interface.ts" --iname=TestPro --pm=sisrecob --fcm=del
-// // // ------------------------------
+// // // --------------------------------------
 const tsFile = argv.ts_file as string;
 const interfaceName = argv.iname as string;
 const parentModule = argv.pm as string;
@@ -103,7 +103,7 @@ const writeActions = () => {
       }
     }
 
-    // // // // write table page ---------------
+    // // // // write table page -------------------
     // // //* table page
     // // set table page path
     const tablePagePathModule = `src/${parentModule}/${firstChildModule}`;
@@ -125,7 +125,10 @@ const writeActions = () => {
         fs.mkdirSync(tablePagePathDir, { recursive: true });
         fs.writeFileSync(
           tablePageBarrel,
-          `export { default as ${tablePageFilenameWithoutExt} } from './${tablePageFilenameWithoutExt}';`
+          `export { default as ${tablePageFilenameWithoutExt} } from './${tablePageFilenameWithoutExt}';
+
+export * from './${tablePageFilenameWithoutExt}';
+`
         );
       }
 
@@ -142,7 +145,7 @@ const writeActions = () => {
       );
     }
 
-    // // // // write create page ---------------
+    // // // // write CREATE page -------------------
     // // set create page path
     const createPageFilenameWithoutExt = `Create${interfaceName}Page`;
     const createPageFilename = `${createPageFilenameWithoutExt}.tsx`;
@@ -171,7 +174,7 @@ const writeActions = () => {
       );
     }
 
-    // // // // write upd page ---------------
+    // // // // write upd page -------------------
     // // set upd page path
     const updPageFilenameWithoutExt = `Update${interfaceName}Page`;
     const updPageFilename = `${updPageFilenameWithoutExt}.tsx`;
@@ -220,7 +223,7 @@ export * from './${updPageFilenameWithoutExt}';`
       }
     }
 
-    // // // // write save form component ---------------
+    // // // // write SAVE form component -------------------
     // // set save form component path
     const saveFormComponentFilename = `Save${interfaceName}`;
     const saveFormComponentPathDir = `${tablePagePathModule}/shared/components/${saveFormComponentFilename}`;
@@ -252,7 +255,7 @@ export * from './${updPageFilenameWithoutExt}';`
       );
     }
 
-    // // write save form component index file
+    // // write SAVE form component index file
     const saveFormComponentIndexFile = `${saveFormComponentPathDir}/${indexFilename}`;
     if (!fs.existsSync(saveFormComponentIndexFile)) {
       fs.writeFileSync(
@@ -308,7 +311,7 @@ export * from './${updPageFilenameWithoutExt}';`
 // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 writeActions();
 
-// // // ------------------------------ Helpers
+// // // -------------------------------------- Helpers
 function getIndexActionsContent(indexFilename: string) {
   // if not exist create file and add import line
   if (!fs.existsSync(`${baseActionsPath}/${indexFilename}`)) {

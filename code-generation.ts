@@ -1,6 +1,10 @@
 /* eslint-disable indent */
 import { InterfaceDeclaration } from 'ts-morph';
-import { getFiltersButId, toKebabCase } from './helpers';
+import {
+  getFiltersButId,
+  getReturnUrlTablePageVarName,
+  toKebabCase,
+} from './helpers';
 
 type GetActionsCodeParams = {
   interfaceName: string;
@@ -164,7 +168,7 @@ export function getTablePageCode({
     '@/' // replace src/ with @/
   );
 
-  const returnUrl = `returnUrl${addSAfterFirstWord(interfaceName)}Page`;
+  const returnUrl = `${getReturnUrlTablePageVarName(interfaceName)}`;
 
   return `import { MRT_ColumnDef } from 'material-react-table';
 import { useMemo } from 'react';
@@ -185,7 +189,7 @@ import { useUiConfirmModalStore } from '@/store/ui';
 
 // TODO: change this to the correct url
 export const ${returnUrl} = '/${parentModule}/${firstChildModule}';
- 
+
 export type ${addSAfterFirstWord(interfaceName)}PageProps = {};
 
 const ${addSAfterFirstWord(interfaceName)}Page: React.FC<${addSAfterFirstWord(
@@ -206,7 +210,7 @@ const ${addSAfterFirstWord(interfaceName)}Page: React.FC<${addSAfterFirstWord(
   const {
     globalFilter,
     pagination,
-    searchTerm,
+    // searchTerm, // TODO: add filters here - searchTerm
     onChangeFilter,
     setPagination,
   } = useTableFilter();
@@ -345,9 +349,15 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
 ${getCustomComponentsImportsBasedOnType(interfaceObj)}
+import { gridSizeMdLg6 } from '@/shared/constants';
 import { ${interfaceName}, ${
     addSAfterFirstWord(interfaceName.split('PaginatedRes')[0]) + 'PaginatedRes'
   } } from '@/shared/interfaces';
+import { ${interfaceName.toLowerCase()}Schema } from '@/shared/utils';
+import { useCreate${interfaceName}, useUpdate${interfaceName} } from '${actionsPathModule}';
+import { ${getReturnUrlTablePageVarName(interfaceName)} } from '../../../pages';
+
+
   `;
 }
 
@@ -367,7 +377,8 @@ export function genColumnsTable(interfaceObj: any): string {
       const capitalized =
         humanizedName.charAt(0).toUpperCase() + humanizedName.slice(1);
 
-      return `{
+      return `
+      {
         accessorKey: '${prop.getName()}',
         header: '${capitalized}',
         size: 180,
