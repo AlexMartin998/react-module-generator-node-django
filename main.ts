@@ -231,11 +231,6 @@ export * from './${updPageFilenameWithoutExt}';`
     const saveFormSchemaFilename = `${toKebabCase(interfaceName)}.schema.ts`;
     const saveFormSchemaPathDir = `src/shared/utils/validation-schemas/${parentModule}/${firstChildModule}`;
     const saveFormSchemaPathFile = `${saveFormSchemaPathDir}/${saveFormSchemaFilename}`;
-    console.log({
-      saveFormSchemaFilename,
-      saveFormSchemaPathDir,
-      saveFormSchemaPathFile,
-    });
 
     // // write save form schema file if not exists, and if exists delete it
     if (fs.existsSync(saveFormSchemaPathFile))
@@ -371,11 +366,13 @@ export * from './${updPageFilenameWithoutExt}';`
         );
       }
     }
+
+    // // // final log
+    console.log(`Se crearon los archivos para ${interfaceName}`);
   } else {
     console.log(`No se encontró la interfaz ${interfaceName} en ${tsFile}`);
   }
 };
-// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
 writeActions();
 
 // // // -------------------------------------- Helpers

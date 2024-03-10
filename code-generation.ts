@@ -379,6 +379,10 @@ export function getSaveFormComponentCode({
     .split(';')
     .map(prop => prop.trim())
     .filter(Boolean);
+  const capitalizedInterfaceNameFkArr = fkPropsAndValue.map(fk => {
+    const [prop /* propType */] = fk.split(':');
+    return prop.charAt(0).toUpperCase() + prop.slice(1);
+  });
 
   return `import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
@@ -389,6 +393,11 @@ ${getCustomComponentsImportsBasedOnType(interfaceObj)}
 import { gridSizeMdLg6 } from '@/shared/constants';
 import { 
   ${interfaceName},
+  ${
+    capitalizedInterfaceNameFkArr.length > 0
+      ? capitalizedInterfaceNameFkArr
+      : ''
+  }
 
 } from '@/shared/interfaces';
 import { ${getFormSchemaName(interfaceName)} } from '@/shared/utils';
