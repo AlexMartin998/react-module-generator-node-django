@@ -480,7 +480,6 @@ export function getValidationSchemaCode({
       return schema;
     })
     .join('\n  ');
-  console.log(schema);
 
   return `import * as yup from 'yup';
 
@@ -531,6 +530,11 @@ export function getCustomComponentsImportsBasedOnType(
     const type = prop.getType().getText();
 
     if (type === 'string') {
+      // is date field
+      if (prop.getName().includes('fecha')) {
+        componentsSet.add('SampleDatePicker');
+      }
+
       // is telefono or celular
       if (
         prop.getName().includes('telefono') ||
@@ -566,6 +570,20 @@ export function setCustomComponentBasedOnType(
   const componentsArr = properties.map(prop => {
     const type = prop.getType().getText();
     if (type === 'string') {
+      // is date field
+      if (prop.getName().includes('fecha')) {
+        return `
+      <SampleDatePicker
+        label="${prop.getName().replace(/_/g, ' ')}"
+        name="${prop.getName()}"
+        control={form.control}
+        defaultValue={form.getValues().${prop.getName()}}
+        error={errors.${prop.getName()}}
+        helperText={errors.${prop.getName()}?.message}
+        size={gridSizeMdLg6}
+      />`;
+      }
+
       // is telefono or celular
       if (
         prop.getName().includes('telefono') ||
@@ -576,7 +594,22 @@ export function setCustomComponentBasedOnType(
         label="${prop.getName().replace(/_/g, ' ')}"
         name="${prop.getName()}"
         control={form.control}
-        defaultValue={form.getValues('${prop.getName()}')}
+        defaultValue={form.getValues().${prop.getName()}}
+        error={errors.${prop.getName()}}
+        helperText={errors.${prop.getName()}?.message}
+        size={gridSizeMdLg6}
+      />`;
+      }
+
+      // is email
+      if (prop.getName().includes('email')) {
+        return `
+      <CustomTextField
+        label="${prop.getName().replace(/_/g, ' ')}"
+        name="${prop.getName()}"
+        type="email"
+        control={form.control}
+        defaultValue={form.getValues().${prop.getName()}}
         error={errors.${prop.getName()}}
         helperText={errors.${prop.getName()}?.message}
         size={gridSizeMdLg6}
@@ -588,7 +621,7 @@ export function setCustomComponentBasedOnType(
         label="${prop.getName().replace(/_/g, ' ')}"
         name="${prop.getName()}"
         control={form.control}
-        defaultValue={form.getValues('${prop.getName()}')}
+        defaultValue={form.getValues().${prop.getName()}}
         error={errors.${prop.getName()}}
         helperText={errors.${prop.getName()}?.message}
         size={gridSizeMdLg6}
@@ -603,7 +636,7 @@ export function setCustomComponentBasedOnType(
         label="${prop.getName().replace(/_/g, ' ')}"
         name="${prop.getName()}"
         control={form.control}
-        defaultValue={form.getValues('${prop.getName()}')}
+        defaultValue={form.getValues().${prop.getName()}}
         size={gridSizeMdLg6}
       />
       `;
