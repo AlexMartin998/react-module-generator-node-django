@@ -125,7 +125,7 @@ export const get${interfaceName}s = (params?: Get${interfaceName}sParams) => {
   const queryParams = getUrlParams(params || {});
   return get<${
     addSAfterFirstWord(interfaceName.split('PaginatedRes')[0]) + 'PaginatedRes'
-  }>(\`/${toKebabCase(interfaceName)}/\${queryParams}\`, true);
+  }>(\`/${toKebabCase(interfaceName)}/?\${queryParams}\`, true);
 };
 
 export const get${interfaceName} = (id: number) => {
@@ -187,6 +187,7 @@ import {
   useFetch${interfaceName}s,
 } from '${actionsPathModule}';
 import { useUiConfirmModalStore } from '@/store/ui';
+import { emptyCellOneLevel } from '@/shared/utils';
 
 // TODO: change this to the correct url
 export const ${returnUrl} = '/${parentModule}/${firstChildModule}';
@@ -374,15 +375,19 @@ export function getSaveFormComponentCode({
   );
 
   const contentText = interfaceObj.getText();
-  const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
-  const fkPropsAndValue = contentAfterFkComment
-    .split(';')
-    .map(prop => prop.trim())
-    .filter(Boolean);
-  const capitalizedInterfaceNameFkArr = fkPropsAndValue.map(fk => {
-    const [prop /* propType */] = fk.split(':');
-    return prop.charAt(0).toUpperCase() + prop.slice(1);
-  });
+  const thereIsFk = contentText.includes('///* fk');
+  let capitalizedInterfaceNameFkArr = [];
+  if (thereIsFk) {
+    const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
+    const fkPropsAndValue = contentAfterFkComment
+      .split(';')
+      .map(prop => prop.trim())
+      .filter(Boolean);
+    capitalizedInterfaceNameFkArr = fkPropsAndValue.map(fk => {
+      const [prop /* propType */] = fk.split(':');
+      return prop.charAt(0).toUpperCase() + prop.slice(1);
+    });
+  }
 
   return `import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
@@ -530,6 +535,7 @@ export function genColumnsTable(interfaceObj: any): string {
         accessorKey: '${prop.getName()}',
         header: '${capitalized}',
         size: 180,
+        Cell: ({ row }) => emptyCellOneLevel(row, '${prop.getName()}'),
       }`;
     })
     .join(',\n  ');
@@ -546,11 +552,16 @@ export function getCustomComponentsImportsBasedOnType(
 
   const componentsSet = new Set<string>();
   const contentText = interfaceObj.getText();
-  const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
-  const fkPropsAndValue = contentAfterFkComment
-    .split(';')
-    .map(prop => prop.trim())
-    .filter(Boolean);
+
+  const thereIsFk = contentText.includes('///* fk');
+  let fkPropsAndValue: any = [];
+  if (thereIsFk) {
+    const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
+    fkPropsAndValue = contentAfterFkComment
+      .split(';')
+      .map(prop => prop.trim())
+      .filter(Boolean);
+  }
 
   properties.forEach(prop => {
     const type = prop.getType().getText();
@@ -598,11 +609,16 @@ export function setCustomComponentBasedOnType(
   // get props
   const properties = interfaceObj.getProperties();
   const contentText = interfaceObj.getText();
-  const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
-  const fkPropsAndValue = contentAfterFkComment
-    .split(';')
-    .map(prop => prop.trim())
-    .filter(Boolean);
+
+  const thereIsFk = contentText.includes('///* fk');
+  let fkPropsAndValue: any = [];
+  if (thereIsFk) {
+    const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
+    fkPropsAndValue = contentAfterFkComment
+      .split(';')
+      .map(prop => prop.trim())
+      .filter(Boolean);
+  }
 
   const fkComponents = fkPropsAndValue.map(fk => {
     const [prop /* propType */] = fk.split(':');

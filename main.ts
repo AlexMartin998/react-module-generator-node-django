@@ -25,7 +25,7 @@ const firstChildModule = argv.fcm as string;
 
 const interfaceMainPath = `src/shared/interfaces/${parentModule}`;
 const interfaceMainPathModule = `${interfaceMainPath}/${firstChildModule}`;
-const actionsFilename = toKebabCase(interfaceName) + '.actions.ts';
+const actionsFilename = toKebabCase(firstChildModule) + '.actions.ts';
 const baseActionsPath = `src/store/${parentModule}/${firstChildModule}`;
 const actionsPath = `${baseActionsPath}/${actionsFilename}`;
 
@@ -62,14 +62,14 @@ const writeActions = () => {
     if (!fs.existsSync(indexPathInterfaces)) {
       fs.writeFileSync(
         indexPathInterfaces,
-        `export * from './${toKebabCase(interfaceName)}.interface';`
+        `export * from './${toKebabCase(firstChildModule)}.interface';`
       );
     } else {
       const indexContent = fs.readFileSync(indexPathInterfaces, 'utf8');
-      if (!indexContent.includes(toKebabCase(interfaceName))) {
+      if (!indexContent.includes(toKebabCase(firstChildModule))) {
         fs.appendFileSync(
           indexPathInterfaces,
-          `export * from './${toKebabCase(interfaceName)}.interface';`
+          `export * from './${toKebabCase(firstChildModule)}.interface';`
         );
       }
     }
@@ -79,7 +79,7 @@ const writeActions = () => {
     if (!fs.existsSync(indexPathModuleInterface)) {
       fs.writeFileSync(
         indexPathModuleInterface,
-        `export * from './${toKebabCase(interfaceName)}.interface';`
+        `export * from './${toKebabCase(firstChildModule)}.interface';`
       );
     } else {
       const indexContent = fs.readFileSync(indexPathModuleInterface, 'utf8');
@@ -97,7 +97,7 @@ const writeActions = () => {
       fs.writeFileSync(indexPathActions, getIndexActionsContent(indexFilename));
     } else {
       const indexContent = fs.readFileSync(indexPathActions, 'utf8');
-      if (!indexContent.includes(toKebabCase(interfaceName))) {
+      if (!indexContent.includes(toKebabCase(firstChildModule))) {
         fs.appendFileSync(
           indexPathActions,
           getIndexActionsContent(indexFilename)
@@ -229,7 +229,7 @@ export * from './${updPageFilenameWithoutExt}';`
 
     // // // // write SAVE form SCHEMA -------------------
     // // set save form schema path
-    const saveFormSchemaFilename = `${toKebabCase(interfaceName)}.schema.ts`;
+    const saveFormSchemaFilename = `${toKebabCase(firstChildModule)}.schema.ts`;
     const saveFormSchemaPathDir = `src/shared/utils/validation-schemas/${parentModule}/${firstChildModule}`;
     const saveFormSchemaPathFile = `${saveFormSchemaPathDir}/${saveFormSchemaFilename}`;
 
@@ -256,7 +256,7 @@ export * from './${updPageFilenameWithoutExt}';`
     if (!fs.existsSync(saveFormSchemaIndexFile)) {
       fs.writeFileSync(
         saveFormSchemaIndexFile,
-        `export * from './${toKebabCase(interfaceName)}.schema';`
+        `export * from './${toKebabCase(firstChildModule)}.schema';`
       );
     } else {
       // add import line to module index file if it's not added yet
@@ -267,7 +267,7 @@ export * from './${updPageFilenameWithoutExt}';`
       if (!saveFormSchemaIndexContent.includes(saveFormSchemaFilename)) {
         fs.appendFileSync(
           saveFormSchemaIndexFile,
-          `export * from './${toKebabCase(interfaceName)}.schema';`
+          `export * from './${toKebabCase(firstChildModule)}.schema';`
         );
       }
     }
@@ -380,7 +380,7 @@ writeActions();
 function getIndexActionsContent(indexFilename: string) {
   // if not exist create file and add import line
   if (!fs.existsSync(`${baseActionsPath}/${indexFilename}`)) {
-    return `export * from './${toKebabCase(interfaceName)}.actions';`;
+    return `export * from './${toKebabCase(firstChildModule)}.actions';`;
   }
 
   // if exist get last line number and add
@@ -388,13 +388,13 @@ function getIndexActionsContent(indexFilename: string) {
     const data = fs.readFileSync(`${baseActionsPath}/${indexFilename}`, 'utf8');
     const lines = data.split('\n');
     const lastLine = lines[lines.length - 1];
-    if (lastLine.includes(toKebabCase(interfaceName))) {
+    if (lastLine.includes(toKebabCase(firstChildModule))) {
       return '';
     }
-    return `export * from './${toKebabCase(interfaceName)}.actions';`;
+    return `export * from './${toKebabCase(firstChildModule)}.actions';`;
   }
 
   return `
-export * from './${toKebabCase(interfaceName)}.actions';
+export * from './${toKebabCase(firstChildModule)}.actions';
   `;
 }
