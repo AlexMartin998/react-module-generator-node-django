@@ -529,8 +529,15 @@ export function getCustomComponentsImportsBasedOnType(
   const componentsSet = new Set<string>();
   properties.forEach(prop => {
     const type = prop.getType().getText();
+
     if (type === 'string') {
-      componentsSet.add('CustomTextField');
+      // is telefono or celular
+      if (
+        prop.getName().includes('telefono') ||
+        prop.getName().includes('celular')
+      ) {
+        componentsSet.add('CustomCellphoneTextField');
+      } else componentsSet.add('CustomTextField');
     }
     if (type === 'number' && !prop.getName().includes('id_')) {
       componentsSet.add('CustomNumberTextField');
@@ -559,6 +566,23 @@ export function setCustomComponentBasedOnType(
   const componentsArr = properties.map(prop => {
     const type = prop.getType().getText();
     if (type === 'string') {
+      // is telefono or celular
+      if (
+        prop.getName().includes('telefono') ||
+        prop.getName().includes('celular')
+      ) {
+        return `
+      <CustomCellphoneTextField
+        label="${prop.getName().replace(/_/g, ' ')}"
+        name="${prop.getName()}"
+        control={form.control}
+        defaultValue={form.getValues('${prop.getName()}')}
+        error={errors.${prop.getName()}}
+        helperText={errors.${prop.getName()}?.message}
+        size={gridSizeMdLg6}
+      />`;
+      }
+
       return `
       <CustomTextField
         label="${prop.getName().replace(/_/g, ' ')}"
