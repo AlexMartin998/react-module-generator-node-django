@@ -20,6 +20,15 @@ You can run this script with the following command:
 bun ./__ts__/main.ts --ts_file="src/shared/interfaces/app/del/test-pro.interface.ts" --iname=TestPro --pm=app --fcm=del
 ```
 
+Yu can also use this script in nested routes:
+
+```bash
+# inside of prev del/
+bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/del/nested/nested.interface.ts" --iname=Nested --pm=sisrecob --fcm=del/nested
+
+# export nested interface > export nested actions >
+```
+
 The script takes the following command line arguments:
 
 - `ts_file`: The path to the TypeScript file that contains the interface.

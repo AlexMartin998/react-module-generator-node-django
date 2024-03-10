@@ -58,6 +58,7 @@ const writeActions = () => {
     // // write index interface file
     const indexFilename = 'index.ts';
     const indexPathInterfaces = `${interfaceMainPathModule}/${indexFilename}`;
+
     if (!fs.existsSync(indexPathInterfaces)) {
       fs.writeFileSync(
         indexPathInterfaces,

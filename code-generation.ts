@@ -440,7 +440,7 @@ const Save${interfaceName}: React.FC<Save${interfaceName}Props> = ({ title, ${in
   });
 
   ///* handlers
-  const onSave = (data: SaveFormData) => {
+  const onSave = async (data: SaveFormData) => {
     if (!isValid) return;
 
     ///* upd
@@ -690,7 +690,17 @@ export function setCustomComponentBasedOnType(
       />`;
     }
     if (type === 'number' && !prop.getName().includes('id_')) {
-      console.log('number');
+      return `
+      <CustomNumberTextField
+        label="${prop.getName().replace(/_/g, ' ')}"
+        name="${prop.getName()}"
+        control={form.control}
+        defaultValue={form.getValues().${prop.getName()}}
+        error={errors.${prop.getName()}}
+        helperText={errors.${prop.getName()}?.message}
+        size={gridSizeMdLg6}
+        min={0}
+      />`;
     }
     if (type === 'boolean') {
       return `
