@@ -253,6 +253,50 @@ export * from './${updPageFilenameWithoutExt}';`
       );
     }
 
+    // // write save form schema index file
+    const saveFormSchemaIndexFile = `${saveFormSchemaPathDir}/${indexFilename}`;
+    if (!fs.existsSync(saveFormSchemaIndexFile)) {
+      fs.writeFileSync(
+        saveFormSchemaIndexFile,
+        `export * from './${toKebabCase(interfaceName)}.schema';`
+      );
+    } else {
+      // add import line to module index file if it's not added yet
+      const saveFormSchemaIndexContent = fs.readFileSync(
+        saveFormSchemaIndexFile,
+        'utf8'
+      );
+      if (!saveFormSchemaIndexContent.includes(saveFormSchemaFilename)) {
+        fs.appendFileSync(
+          saveFormSchemaIndexFile,
+          `export * from './${toKebabCase(interfaceName)}.schema';`
+        );
+      }
+    }
+
+    // // write save form schema index module file
+    const saveFormSchemaPathComponentDir = `src/shared/utils/validation-schemas/${parentModule}`;
+    const saveFormSchemaIndexModuleFile = `${saveFormSchemaPathComponentDir}/${indexFilename}`;
+
+    if (!fs.existsSync(saveFormSchemaIndexModuleFile)) {
+      fs.writeFileSync(
+        saveFormSchemaIndexModuleFile,
+        `export * from './${firstChildModule}';`
+      );
+    } else {
+      // add import line to module index file if it's not added yet
+      const saveFormSchemaIndexModuleContent = fs.readFileSync(
+        saveFormSchemaIndexModuleFile,
+        'utf8'
+      );
+      if (!saveFormSchemaIndexModuleContent.includes(firstChildModule)) {
+        fs.appendFileSync(
+          saveFormSchemaIndexModuleFile,
+          `export * from './${firstChildModule}';`
+        );
+      }
+    }
+
     // // // // write SAVE form component -------------------
     // // set save form component path
     const saveFormComponentFilename = `Save${interfaceName}`;
