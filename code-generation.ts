@@ -373,6 +373,13 @@ export function getSaveFormComponentCode({
     '@/' // replace src/ with @/
   );
 
+  const contentText = interfaceObj.getText();
+  const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
+  const fkPropsAndValue = contentAfterFkComment
+    .split(';')
+    .map(prop => prop.trim())
+    .filter(Boolean);
+
   return `import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -380,7 +387,10 @@ import { useNavigate } from 'react-router-dom';
 
 ${getCustomComponentsImportsBasedOnType(interfaceObj)}
 import { gridSizeMdLg6 } from '@/shared/constants';
-import { ${interfaceName} } from '@/shared/interfaces';
+import { 
+  ${interfaceName},
+
+} from '@/shared/interfaces';
 import { ${getFormSchemaName(interfaceName)} } from '@/shared/utils';
 import { 
   useCreate${interfaceName}, 
@@ -462,7 +472,7 @@ export function getValidationSchemaCode({
   const properties = interfaceObj.getProperties();
   const schema = properties
     .map(prop => {
-      if (prop.getName().includes('id')) return;
+      if (prop.getName().includes('id_')) return;
 
       const type = prop.getType().getText();
       const required = !prop.hasQuestionToken();
@@ -526,10 +536,22 @@ export function getCustomComponentsImportsBasedOnType(
   const properties = interfaceObj.getProperties();
 
   const componentsSet = new Set<string>();
+  const contentText = interfaceObj.getText();
+  const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
+  const fkPropsAndValue = contentAfterFkComment
+    .split(';')
+    .map(prop => prop.trim())
+    .filter(Boolean);
+
   properties.forEach(prop => {
     const type = prop.getType().getText();
 
     if (type === 'string') {
+      // there is fk
+      if (fkPropsAndValue.some(fk => fk.includes(prop.getName()))) {
+        componentsSet.add('CustomAutocomplete');
+      }
+
       // is date field
       if (prop.getName().includes('fecha')) {
         componentsSet.add('SampleDatePicker');
@@ -566,10 +588,41 @@ export function setCustomComponentBasedOnType(
   if (!interfaceObj) return;
   // get props
   const properties = interfaceObj.getProperties();
+  const contentText = interfaceObj.getText();
+  const contentAfterFkComment = contentText.split('///* fk')[1].split('}')[0];
+  const fkPropsAndValue = contentAfterFkComment
+    .split(';')
+    .map(prop => prop.trim())
+    .filter(Boolean);
+
+  const fkComponents = fkPropsAndValue.map(fk => {
+    const [prop /* propType */] = fk.split(':');
+    const capitalizedModelName = prop.charAt(0).toUpperCase() + prop.slice(1);
+
+    return `
+      <CustomAutocomplete<${capitalizedModelName}>
+        label="${capitalizedModelName}"
+        name="${prop}"
+        // options
+        options={[] || []}
+        valueKey="string" // TODO: check this
+        defaultValue={form.getValues().${prop}}
+        isLoadingData={false} // TODO: add loading
+        // vaidation
+        control={form.control}
+        error={errors.${prop}}
+        helperText={errors.${prop}?.message}
+        size={gridSizeMdLg6}
+      />`;
+  });
+  const fkComponentsStr = fkComponents.join('\n');
 
   const componentsArr = properties.map(prop => {
     const type = prop.getType().getText();
     if (type === 'string') {
+      // is fk
+      if (fkPropsAndValue.some(fk => fk.includes(prop.getName()))) return;
+
       // is date field
       if (prop.getName().includes('fecha')) {
         return `
@@ -643,5 +696,5 @@ export function setCustomComponentBasedOnType(
     }
   });
 
-  return componentsArr.join('\n');
+  return componentsArr.join('\n') + fkComponentsStr;
 }
