@@ -301,25 +301,53 @@ export default ${addSAfterFirstWord(interfaceName)}Page;
 }
 
 export function getCreatePageCode({ interfaceName }): string {
-  return `import { Save${interfaceName}Form } from './../../shared/components';
+  return `import { Save${interfaceName} } from './../../shared/components';
 
 export type Create${interfaceName}PageProps = {};
 
 const Create${interfaceName}Page: React.FC<Create${interfaceName}PageProps> = () => {
-  return <Save${interfaceName}Form title="Crear ${interfaceName}" />;
+  return <Save${interfaceName} title="Crear ${interfaceName}" />;
 };
 
 export default Create${interfaceName}Page;
 `;
 }
 
-export function getUpdatePageCode({ interfaceName }): string {
-  return `import { Save${interfaceName}Form } from './../../shared/components';
+export function getUpdatePageCode({
+  interfaceName,
+  actionsPath,
+  firstChildModule,
+}): string {
+  const actionsPathSplit = actionsPath.split(firstChildModule);
+  const actionsPathModule = (actionsPathSplit[0] + firstChildModule).replace(
+    'src/',
+    '@/' // replace src/ with @/
+  );
+  const returnUrl = `${getReturnUrlTablePageVarName(interfaceName)}`;
+
+  return `import { Navigate, useParams } from 'react-router-dom';
+
+import { Save${interfaceName} } from './../../shared/components';
+import { useGet${interfaceName} } from '${actionsPathModule}';
+import { ${returnUrl} } from '../${addSAfterFirstWord(
+    interfaceName
+  )}Page/${addSAfterFirstWord(interfaceName)}Page';
 
 export type Update${interfaceName}PageProps = {};
 
 const Update${interfaceName}Page: React.FC<Update${interfaceName}PageProps> = () => {
-  return <Save${interfaceName}Form title="Editar ${interfaceName}" />;
+  const { id } = useParams();
+  const { data, isLoading } = useGet${interfaceName}(+id!);
+
+  if (isLoading) return null;
+  if (!data?.data?.id_${interfaceName.toLowerCase()}) return <Navigate to={${getReturnUrlTablePageVarName(
+    interfaceName
+  )}} />;
+
+  return <Save${interfaceName}
+    title="Editar ${interfaceName}"
+    ${interfaceName.toLowerCase()}={data.data}
+  />;
 };
 
 export default Update${interfaceName}Page;
@@ -352,9 +380,7 @@ import { useNavigate } from 'react-router-dom';
 
 ${getCustomComponentsImportsBasedOnType(interfaceObj)}
 import { gridSizeMdLg6 } from '@/shared/constants';
-import { ${interfaceName}, ${
-    addSAfterFirstWord(interfaceName.split('PaginatedRes')[0]) + 'PaginatedRes'
-  } } from '@/shared/interfaces';
+import { ${interfaceName} } from '@/shared/interfaces';
 import { ${getFormSchemaName(interfaceName)} } from '@/shared/utils';
 import { 
   useCreate${interfaceName}, 
@@ -548,7 +574,15 @@ export function setCustomComponentBasedOnType(
       console.log('number');
     }
     if (type === 'boolean') {
-      console.log('boolean');
+      return `
+      <SampleCheckbox
+        label="${prop.getName().replace(/_/g, ' ')}"
+        name="${prop.getName()}"
+        control={form.control}
+        defaultValue={form.getValues('${prop.getName()}')}
+        size={gridSizeMdLg6}
+      />
+      `;
     }
   });
 

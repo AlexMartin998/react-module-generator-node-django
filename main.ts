@@ -200,6 +200,8 @@ export * from './${tablePageFilenameWithoutExt}';
         updPagePathFile,
         getUpdatePageCode({
           interfaceName,
+          actionsPath,
+          firstChildModule,
         })
       );
     }
