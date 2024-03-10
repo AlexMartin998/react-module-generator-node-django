@@ -26,3 +26,11 @@ export const getReturnUrlTablePageVarName = (interfaceName: string): string => {
   const returnUrl = `returnUrl${addSAfterFirstWord(interfaceName)}Page`;
   return returnUrl;
 };
+
+export function toCamelCase(str: string): string {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
+export function getFormSchemaName(interfaceName: string): string {
+  return `${toCamelCase(interfaceName)}FormSchema`;
+}

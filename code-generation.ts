@@ -2,6 +2,7 @@
 import { InterfaceDeclaration } from 'ts-morph';
 import {
   getFiltersButId,
+  getFormSchemaName,
   getReturnUrlTablePageVarName,
   toKebabCase,
 } from './helpers';
@@ -354,7 +355,7 @@ import { gridSizeMdLg6 } from '@/shared/constants';
 import { ${interfaceName}, ${
     addSAfterFirstWord(interfaceName.split('PaginatedRes')[0]) + 'PaginatedRes'
   } } from '@/shared/interfaces';
-import { ${interfaceName.toLowerCase()}Schema } from '@/shared/utils';
+import { ${getFormSchemaName(interfaceName)} } from '@/shared/utils';
 import { 
   useCreate${interfaceName}, 
   useUpdate${interfaceName},
@@ -374,7 +375,7 @@ const Save${interfaceName}: React.FC<Save${interfaceName}Props> = ({ title, ${in
 
   ///* form
   const form = useForm<SaveFormData>({
-    resolver: yupResolver(${interfaceName.toLowerCase()}Schema) as any,
+    resolver: yupResolver(${getFormSchemaName(interfaceName)}),
   });
 
   const {
@@ -420,12 +421,47 @@ const Save${interfaceName}: React.FC<Save${interfaceName}Props> = ({ title, ${in
       titlePage={title}
       onCancel={() => navigate(${getReturnUrlTablePageVarName(interfaceName)})}
       onSave={handleSubmit(onSave, () => {})}
-    >${setCustomComponentBasedOnType(interfaceObj, actionsPathModule)}
+    >${setCustomComponentBasedOnType(interfaceObj)}
     </SingleFormBoxScene>
   );
 };
 
 export default Save${interfaceName};
+`;
+}
+
+export function getValidationSchemaCode({
+  interfaceObj,
+}: GetActionsCodeParams): string {
+  const properties = interfaceObj.getProperties();
+  const schema = properties
+    .map(prop => {
+      if (prop.getName().includes('id')) return;
+
+      const type = prop.getType().getText();
+      const required = !prop.hasQuestionToken();
+      const name = prop.getName();
+      const humanizedName = name.replace(/_/g, ' ');
+      const schema = `${name}: yup.${type}()${
+        type === 'number' || type === 'boolean'
+          ? `.typeError('El campo ${humanizedName} es requerido')`
+          : ''
+      }${
+        required
+          ? `.required('El campo ${humanizedName} es requerido'),`
+          : '.optional().nullable(),'
+      }`;
+      return schema;
+    })
+    .join('\n  ');
+  console.log(schema);
+
+  return `import * as yup from 'yup';
+
+export const ${getFormSchemaName(
+    interfaceObj.getName()
+  )} = yup.object({${schema}
+});
 `;
 }
 
@@ -488,15 +524,9 @@ export function getCustomComponentsImportsBasedOnType(
 }
 
 export function setCustomComponentBasedOnType(
-  interfaceObj: InterfaceDeclaration | undefined,
-  saveFormComponentPathComponentDir: string
+  interfaceObj: InterfaceDeclaration | undefined
 ) {
   if (!interfaceObj) return;
-  console.log(
-    'saveFormComponentPathComponentDir: ',
-    saveFormComponentPathComponentDir
-  );
-
   // get props
   const properties = interfaceObj.getProperties();
 

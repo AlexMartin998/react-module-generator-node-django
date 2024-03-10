@@ -10,6 +10,7 @@ import {
   getSaveFormComponentCode,
   getTablePageCode,
   getUpdatePageCode,
+  getValidationSchemaCode,
 } from './code-generation';
 import { toKebabCase } from './helpers';
 
@@ -223,16 +224,40 @@ export * from './${updPageFilenameWithoutExt}';`
       }
     }
 
+    // // // // write SAVE form SCHEMA -------------------
+    // // set save form schema path
+    const saveFormSchemaFilename = `${toKebabCase(interfaceName)}.schema.ts`;
+    const saveFormSchemaPathDir = `src/shared/utils/validation-schemas/${parentModule}/${firstChildModule}`;
+    const saveFormSchemaPathFile = `${saveFormSchemaPathDir}/${saveFormSchemaFilename}`;
+    console.log({
+      saveFormSchemaFilename,
+      saveFormSchemaPathDir,
+      saveFormSchemaPathFile,
+    });
+
+    // // write save form schema file if not exists, and if exists delete it
+    if (fs.existsSync(saveFormSchemaPathFile))
+      fs.unlinkSync(saveFormSchemaPathFile);
+    if (!fs.existsSync(saveFormSchemaPathFile)) {
+      // if not exists path and directories create them
+      if (!fs.existsSync(saveFormSchemaPathDir)) {
+        fs.mkdirSync(saveFormSchemaPathDir, { recursive: true });
+      }
+
+      fs.writeFileSync(
+        saveFormSchemaPathFile,
+        getValidationSchemaCode({
+          interfaceName,
+          interfaceObj,
+        })
+      );
+    }
+
     // // // // write SAVE form component -------------------
     // // set save form component path
     const saveFormComponentFilename = `Save${interfaceName}`;
     const saveFormComponentPathDir = `${tablePagePathModule}/shared/components/${saveFormComponentFilename}`;
     const saveFormComponentPathFile = `${saveFormComponentPathDir}/${saveFormComponentFilename}.tsx`;
-    console.log({
-      saveFormComponentFilename,
-      saveFormComponentPathDir,
-      saveFormComponentPathFile,
-    });
 
     // // write save form component file if not exists, and if exists delete it
     if (fs.existsSync(saveFormComponentPathFile))
@@ -279,10 +304,6 @@ export * from './${updPageFilenameWithoutExt}';`
     // // write save form component index module file
     const saveFormComponentPathComponentDir = `${tablePagePathModule}/shared/components`;
     const saveFormComponentIndexModuleFile = `${saveFormComponentPathComponentDir}/${indexFilename}`;
-    console.log({
-      saveFormComponentPathComponentDir,
-      saveFormComponentIndexModuleFile,
-    });
 
     if (!fs.existsSync(saveFormComponentIndexModuleFile)) {
       fs.writeFileSync(
