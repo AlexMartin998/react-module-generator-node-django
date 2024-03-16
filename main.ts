@@ -33,11 +33,6 @@ const tsFileDirParts = tsFileDir.split('/');
 // Find the index of 'sisrecob' in the path
 const sisrecobIndex = tsFileDirParts.indexOf('sisrecob');
 
-// Modify the interfaceMainPath and interfaceMainPathModule variables.
-const interfaceMainPath = `src/${tsFileDirParts
-  .slice(sisrecobIndex)
-  .join('/')}`;
-const interfaceMainPathModule = interfaceMainPath;
 const actionsFilename =
   toKebabCase(tsFileDirParts[tsFileDirParts.length - 1]) + '.actions.ts';
 const baseActionsPath = `src/store/${tsFileDirParts
