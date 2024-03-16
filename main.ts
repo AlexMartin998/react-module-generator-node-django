@@ -434,7 +434,9 @@ writeActions();
 function getIndexActionsContent(indexFilename: string) {
   // if not exist create file and add import line
   if (!fs.existsSync(`${baseActionsPath}/${indexFilename}`)) {
-    return `export * from './${toKebabCase(firstChildModule)}.actions';`;
+    return `export * from './${
+      toKebabCase(firstChildModule).split('/')[1]
+    }.actions';`;
   }
 
   // if exist get last line number and add
