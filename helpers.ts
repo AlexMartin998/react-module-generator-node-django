@@ -34,3 +34,31 @@ export function toCamelCase(str: string): string {
 export function getFormSchemaName(interfaceName: string): string {
   return `${toCamelCase(interfaceName)}FormSchema`;
 }
+
+// // actions
+type GetAxiosUrlParams = {
+  interfaceName: string;
+  pm?: string;
+  fcm?: string;
+
+  getAll?: boolean;
+  endPoint?: string;
+};
+
+export const getAxiosUrl = ({
+  getAll,
+  interfaceName,
+  endPoint,
+}: GetAxiosUrlParams): string => {
+  const endPointName = endPoint ? endPoint : toKebabCase(interfaceName);
+
+  if (getAll) {
+    if (endPoint) {
+      return `(\`/${endPointName}/\${queryParams}\`, true);`;
+    }
+
+    return `(\`/${endPointName}/?\${queryParams}\`, true);`;
+  }
+
+  return endPointName;
+};

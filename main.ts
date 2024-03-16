@@ -16,12 +16,14 @@ import { toKebabCase } from './helpers';
 
 const argv = yargs(hideBin(process.argv)).argv;
 
-// bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/del/test-pro.interface.ts" --iname=TestPro --pm=sisrecob --fcm=del
+// bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/toma-agua/toma-agua.interface.ts" --iname=TomaAgua --pm=sisrecob --fcm=toma-agua --ep="tomas-agua-endpoint"
 // // // --------------------------------------
 const tsFile = argv.ts_file as string;
 const interfaceName = argv.iname as string;
 const parentModule = argv.pm as string;
 const firstChildModule = argv.fcm as string;
+// optional args
+const endPoint = argv.ep as string;
 
 const interfaceMainPath = `src/shared/interfaces/${parentModule}`;
 const interfaceMainPathModule = `${interfaceMainPath}/${firstChildModule}`;
@@ -40,6 +42,7 @@ const writeActions = () => {
       interfaceName,
       interfaceObj,
       interfaceText: interfaceObj.getText(),
+      endPoint,
     });
 
     // // write actions file, if exists delete it

@@ -14,10 +14,22 @@ This TypeScript script is used to generate actions and table pages for a given T
 
 ## Usage
 
+Args:
+
+- `ts_file`: Interface File - relative path
+- `iname`: InterfaceName
+- `pm`: Parent Module Name (app/sysapp/erp)
+- `fcm`: First Child Module Name (1st level Dir inside of --pm)
+- `ep`: Actual endpotin string to use it in actions file (/some-api-endpoint)
+
 You can run this script with the following command:
 
 ```bash
+# Example 1
 bun ./__ts__/main.ts --ts_file="src/shared/interfaces/app/del/test-pro.interface.ts" --iname=TestPro --pm=app --fcm=del
+
+# Example 2
+bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/toma-agua/toma-agua.interface.ts" --iname=TomaAgua --pm=sisrecob --fcm=toma-agua --ep="tomas-agua-endpoint"
 ```
 
 Yu can also use this script in nested routes:
@@ -26,7 +38,7 @@ Yu can also use this script in nested routes:
 # inside of prev del/
 bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/del/nested/nested.interface.ts" --iname=Nested --pm=sisrecob --fcm=del/nested
 
-# export nested interface > export nested actions >
+# FIX: export nested interface > export nested actions >
 ```
 
 The script takes the following command line arguments:

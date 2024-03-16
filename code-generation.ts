@@ -1,6 +1,7 @@
 /* eslint-disable indent */
 import { InterfaceDeclaration } from 'ts-morph';
 import {
+  getAxiosUrl,
   getFiltersButId,
   getFormSchemaName,
   getReturnUrlTablePageVarName,
@@ -11,10 +12,12 @@ type GetActionsCodeParams = {
   interfaceName: string;
   interfaceText?: string;
   interfaceObj?: any;
+  endPoint?: string;
 };
 export function getActionsCode({
   interfaceName,
   interfaceObj,
+  endPoint,
 }: GetActionsCodeParams): string {
   return `import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -125,27 +128,36 @@ export const get${interfaceName}s = (params?: Get${interfaceName}sParams) => {
   const queryParams = getUrlParams(params || {});
   return get<${
     addSAfterFirstWord(interfaceName.split('PaginatedRes')[0]) + 'PaginatedRes'
-  }>(\`/${toKebabCase(interfaceName)}/?\${queryParams}\`, true);
+    // }>(\`/${toKebabCase(interfaceName)}/?\${queryParams}\`, true);
+  }>${getAxiosUrl({ getAll: true, interfaceName, endPoint })}
 };
 
 export const get${interfaceName} = (id: number) => {
-  return get<${interfaceName}>(\`/${toKebabCase(interfaceName)}/\${id}\`, true);
+  return get<${interfaceName}>(\`/${getAxiosUrl({
+    interfaceName,
+    endPoint,
+  })}/\${id}\`, true);
 };
 
 export const create${interfaceName} = (data: Create${interfaceName}Params) => {
-  return post<${interfaceName}>('/${toKebabCase(interfaceName)}/', data, true);
+  return post<${interfaceName}>('/${getAxiosUrl({
+    interfaceName,
+    endPoint,
+  })}/', data, true);
 };
 
 export const update${interfaceName} = ({ id, data }: Update${interfaceName}Params) => {
-  return put<${interfaceName}>(\`/${toKebabCase(
-    interfaceName
-  )}/\${id}/\`, data, true);
+  return put<${interfaceName}>(\`/${getAxiosUrl({
+    interfaceName,
+    endPoint,
+  })}/\${id}/\`, data, true);
 };
 
 export const delete${interfaceName} = (id: number) => {
-  return remove<${interfaceName}>(\`/${toKebabCase(
-    interfaceName
-  )}/\${id}/\`, true);
+  return remove<${interfaceName}>(\`/${getAxiosUrl({
+    interfaceName,
+    endPoint,
+  })}/\${id}/\`, true);
 };
 `;
 }
@@ -289,8 +301,10 @@ const ${addSAfterFirstWord(interfaceName)}Page: React.FC<${addSAfterFirstWord(
         rowCount={${addSAfterFirstWord(interfaceName)}PagingRes?.data?.count}
         // // actions
         actionsColumnSize={180}
+        positionActionsColumn='first'
         // crud
         onEdit={onEdit}
+        canDelete
         onDelete={onDelete}
       />
     </SingleTableBoxScene>
