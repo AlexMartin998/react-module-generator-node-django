@@ -301,12 +301,14 @@ export * from './${updPageFilenameWithoutExt}';`
       console.log(`El archivo ${saveFormSchemaPathFile} ya existe`);
     }
 
-    // // write save form schema index file
+    // // write save form SCHEMA index file
     const saveFormSchemaIndexFile = `${saveFormSchemaPathDir}/${indexFilename}`;
     if (!fs.existsSync(saveFormSchemaIndexFile)) {
       fs.writeFileSync(
         saveFormSchemaIndexFile,
-        `export * from './${toKebabCase(firstChildModule)}.schema';`
+        `export * from './${
+          toKebabCase(firstChildModule).split('/')[1]
+        }.schema';`
       );
     } else {
       // add import line to module index file if it's not added yet
@@ -314,7 +316,8 @@ export * from './${updPageFilenameWithoutExt}';`
         saveFormSchemaIndexFile,
         'utf8'
       );
-      if (!saveFormSchemaIndexContent.includes(saveFormSchemaFilename)) {
+      const criteriaToCheck = toKebabCase(firstChildModule).split('/')[1];
+      if (!saveFormSchemaIndexContent.includes(criteriaToCheck)) {
         fs.appendFileSync(
           saveFormSchemaIndexFile,
           `export * from './${toKebabCase(firstChildModule)}.schema';`
@@ -329,7 +332,7 @@ export * from './${updPageFilenameWithoutExt}';`
     if (!fs.existsSync(saveFormSchemaIndexModuleFile)) {
       fs.writeFileSync(
         saveFormSchemaIndexModuleFile,
-        `export * from './${toKebabCase(firstChildModule).split('/')[1]}';`
+        `export * from './${toKebabCase(firstChildModule)}';`
       );
     } else {
       // add import line to module index file if it's not added yet
@@ -337,7 +340,8 @@ export * from './${updPageFilenameWithoutExt}';`
         saveFormSchemaIndexModuleFile,
         'utf8'
       );
-      if (!saveFormSchemaIndexModuleContent.includes(firstChildModule)) {
+      const criteriaToCheck = toKebabCase(firstChildModule).split('/')[1];
+      if (!saveFormSchemaIndexModuleContent.includes(criteriaToCheck)) {
         fs.appendFileSync(
           saveFormSchemaIndexModuleFile,
           `export * from './${toKebabCase(firstChildModule).split('/')[1]}';`
