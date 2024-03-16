@@ -86,10 +86,11 @@ const writeActions = () => {
       console.log(`El archivo ${actionsPath} ya existe`);
     }
 
-    // // write index interface file
+    // // write index INTERFACE file
     const indexFilename = 'index.ts';
 
     // Check if the directory exists, if not, create it
+    const interfaceMainPathModule = `src/shared/interfaces/${parentModule}/${firstChildModule}`;
     if (!fs.existsSync(interfaceMainPathModule)) {
       fs.mkdirSync(interfaceMainPathModule, { recursive: true });
     }
@@ -99,34 +100,42 @@ const writeActions = () => {
     if (!fs.existsSync(indexPathInterfaces)) {
       fs.writeFileSync(
         indexPathInterfaces,
-        `export * from './${toKebabCase(firstChildModule)}.interface';`
+        `export * from './${
+          toKebabCase(firstChildModule).split('/')[1]
+        }.interface';`
       );
     } else {
       const indexContent = fs.readFileSync(indexPathInterfaces, 'utf8');
       if (!indexContent.includes(toKebabCase(firstChildModule))) {
-        fs.appendFileSync(
-          indexPathInterfaces,
-          `export * from './${toKebabCase(firstChildModule)}.interface';`
-        );
+        const criteriaToCheck = toKebabCase(firstChildModule).split('/')[1];
+        if (!indexContent.includes(criteriaToCheck)) {
+          fs.appendFileSync(
+            indexPathInterfaces,
+            `export * from './${
+              toKebabCase(firstChildModule).split('/')[1]
+            }.interface';`
+          );
+        }
       }
     }
 
-    // add import line to module index file
-    const indexPathModuleInterface = `${interfaceMainPath}/${indexFilename}`;
-    if (!fs.existsSync(indexPathModuleInterface)) {
-      fs.writeFileSync(
-        indexPathModuleInterface,
-        `export * from './${toKebabCase(firstChildModule)}.interface';`
-      );
-    } else {
-      const indexContent = fs.readFileSync(indexPathModuleInterface, 'utf8');
-      if (!indexContent.includes(firstChildModule)) {
-        fs.appendFileSync(
-          indexPathModuleInterface,
-          `export * from './${firstChildModule}';`
-        );
-      }
-    }
+    // // add import line to module index file
+    // const indexPathModuleInterface = `${interfaceMainPathModule}/${indexFilename}`;
+
+    // if (!fs.existsSync(indexPathModuleInterface)) {
+    //   fs.writeFileSync(
+    //     indexPathModuleInterface,
+    //     `export * from './${toKebabCase(firstChildModule)}.interface';`
+    //   );
+    // } else {
+    //   const indexContent = fs.readFileSync(indexPathModuleInterface, 'utf8');
+    //   if (!indexContent.includes(firstChildModule)) {
+    //     fs.appendFileSync(
+    //       indexPathModuleInterface,
+    //       `export * from './${firstChildModule}';`
+    //     );
+    //   }
+    // }
 
     // // write actions index file
     const indexPathActions = `${baseActionsPath}/${indexFilename}`;
@@ -263,7 +272,7 @@ export * from './${updPageFilenameWithoutExt}';`
       }
     }
 
-    // // // // write save form schema -------------------
+    // // // // write save form SCHEMA --------------------------
     // // set save form schema path
     const saveFormSchemaPathDir = `src/shared/utils/validation-schemas/${tsFileDirParts
       .slice(sisrecobIndex)
@@ -320,7 +329,7 @@ export * from './${updPageFilenameWithoutExt}';`
     if (!fs.existsSync(saveFormSchemaIndexModuleFile)) {
       fs.writeFileSync(
         saveFormSchemaIndexModuleFile,
-        `export * from './${firstChildModule}';`
+        `export * from './${toKebabCase(firstChildModule).split('/')[1]}';`
       );
     } else {
       // add import line to module index file if it's not added yet
@@ -331,7 +340,7 @@ export * from './${updPageFilenameWithoutExt}';`
       if (!saveFormSchemaIndexModuleContent.includes(firstChildModule)) {
         fs.appendFileSync(
           saveFormSchemaIndexModuleFile,
-          `export * from './${firstChildModule}';`
+          `export * from './${toKebabCase(firstChildModule).split('/')[1]}';`
         );
       }
     }
