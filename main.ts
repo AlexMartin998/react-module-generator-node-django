@@ -1,5 +1,6 @@
 /* eslint-disable indent */
 import fs from 'fs';
+import path from 'path';
 import { Project } from 'ts-morph';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -16,7 +17,7 @@ import { toKebabCase } from './helpers';
 
 const argv = yargs(hideBin(process.argv)).argv;
 
-// bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/toma-agua/toma-agua.interface.ts" --iname=TomaAgua --pm=sisrecob --fcm=toma-agua --ep="tomas-agua-endpoint"
+// bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/tomas/toma-agua/toma-agua.interface.ts" --iname=TomaAgua --pm=sisrecob --fcm=tomas/toma-agua --ep="tomas-agua-endpoint"
 // // // --------------------------------------
 const tsFile = argv.ts_file as string;
 const interfaceName = argv.iname as string;
@@ -25,10 +26,23 @@ const firstChildModule = argv.fcm as string;
 // optional args
 const endPoint = argv.ep as string;
 
-const interfaceMainPath = `src/shared/interfaces/${parentModule}`;
-const interfaceMainPathModule = `${interfaceMainPath}/${firstChildModule}`;
-const actionsFilename = toKebabCase(firstChildModule) + '.actions.ts';
-const baseActionsPath = `src/store/${parentModule}/${firstChildModule}`;
+// Parse the ts_file argument to get the directory structure.
+const tsFileDir = path.dirname(tsFile);
+const tsFileDirParts = tsFileDir.split('/');
+
+// Find the index of 'sisrecob' in the path
+const sisrecobIndex = tsFileDirParts.indexOf('sisrecob');
+
+// Modify the interfaceMainPath and interfaceMainPathModule variables.
+const interfaceMainPath = `src/${tsFileDirParts
+  .slice(sisrecobIndex)
+  .join('/')}`;
+const interfaceMainPathModule = interfaceMainPath;
+const actionsFilename =
+  toKebabCase(tsFileDirParts[tsFileDirParts.length - 1]) + '.actions.ts';
+const baseActionsPath = `src/store/${tsFileDirParts
+  .slice(sisrecobIndex)
+  .join('/')}`;
 const actionsPath = `${baseActionsPath}/${actionsFilename}`;
 
 const project = new Project();
@@ -58,8 +72,28 @@ const writeActions = () => {
       console.log(`El archivo ${actionsPath} ya existe`);
     }
 
+    //--------------------------------------c
+    // // write actions file, if exists delete it
+    if (fs.existsSync(actionsPath)) fs.unlinkSync(actionsPath);
+    if (!fs.existsSync(actionsPath)) {
+      // if not exists path and directories create them
+      if (!fs.existsSync(baseActionsPath)) {
+        fs.mkdirSync(baseActionsPath, { recursive: true });
+      }
+
+      fs.writeFileSync(actionsPath, actionsCode);
+    } else {
+      console.log(`El archivo ${actionsPath} ya existe`);
+    }
+
     // // write index interface file
     const indexFilename = 'index.ts';
+
+    // Check if the directory exists, if not, create it
+    if (!fs.existsSync(interfaceMainPathModule)) {
+      fs.mkdirSync(interfaceMainPathModule, { recursive: true });
+    }
+
     const indexPathInterfaces = `${interfaceMainPathModule}/${indexFilename}`;
 
     if (!fs.existsSync(indexPathInterfaces)) {
@@ -162,21 +196,20 @@ export * from './${tablePageFilenameWithoutExt}';
     if (!fs.existsSync(createPagePathFile)) {
       // if not exists path and directories create them
       if (!fs.existsSync(createPagePathDir)) {
-        const createPageBarrel = `${createPagePathDir}/index.ts`;
-
+        // Check if the directory exists, if not, create it
         fs.mkdirSync(createPagePathDir, { recursive: true });
-        fs.writeFileSync(
-          createPageBarrel,
-          `export { default as ${createPageFilenameWithoutExt} } from './${createPageFilenameWithoutExt}';`
-        );
       }
 
       fs.writeFileSync(
         createPagePathFile,
         getCreatePageCode({
           interfaceName,
+          // parentModule,
+          // firstChildModule,
         })
       );
+    } else {
+      console.log(`El archivo ${createPagePathFile} ya existe`);
     }
 
     // // // // write upd page -------------------
@@ -230,10 +263,13 @@ export * from './${updPageFilenameWithoutExt}';`
       }
     }
 
-    // // // // write SAVE form SCHEMA -------------------
+    // // // // write save form schema -------------------
     // // set save form schema path
-    const saveFormSchemaFilename = `${toKebabCase(firstChildModule)}.schema.ts`;
-    const saveFormSchemaPathDir = `src/shared/utils/validation-schemas/${parentModule}/${firstChildModule}`;
+    const saveFormSchemaPathDir = `src/shared/utils/validation-schemas/${tsFileDirParts
+      .slice(sisrecobIndex)
+      .join('/')}`;
+    const saveFormSchemaFilename =
+      toKebabCase(tsFileDirParts[tsFileDirParts.length - 1]) + '.schema.ts';
     const saveFormSchemaPathFile = `${saveFormSchemaPathDir}/${saveFormSchemaFilename}`;
 
     // // write save form schema file if not exists, and if exists delete it
@@ -252,6 +288,8 @@ export * from './${updPageFilenameWithoutExt}';`
           interfaceObj,
         })
       );
+    } else {
+      console.log(`El archivo ${saveFormSchemaPathFile} ya existe`);
     }
 
     // // write save form schema index file
