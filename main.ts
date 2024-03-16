@@ -148,7 +148,7 @@ const writeActions = () => {
       }
     }
 
-    // // // // write table page -------------------
+    // // // // write TABLE Page -------------------
     // // //* table page
     // // set table page path
     const tablePagePathModule = `src/${parentModule}/${firstChildModule}`;
@@ -190,7 +190,7 @@ export * from './${tablePageFilenameWithoutExt}';
       );
     }
 
-    // // // // write CREATE page -------------------
+    // // // // write CREATE Page -------------------
     // // set create page path
     const createPageFilenameWithoutExt = `Create${interfaceName}Page`;
     const createPageFilename = `${createPageFilenameWithoutExt}.tsx`;
@@ -204,6 +204,13 @@ export * from './${tablePageFilenameWithoutExt}';
       if (!fs.existsSync(createPagePathDir)) {
         // Check if the directory exists, if not, create it
         fs.mkdirSync(createPagePathDir, { recursive: true });
+
+        // Write index file if not exists, and if exists delete it
+        const createPageBarrel = `${createPagePathDir}/index.ts`;
+        fs.writeFileSync(
+          createPageBarrel,
+          `export { default as ${createPageFilenameWithoutExt} } from './${createPageFilenameWithoutExt}';`
+        );
       }
 
       fs.writeFileSync(
