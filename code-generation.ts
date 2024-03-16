@@ -519,7 +519,11 @@ export function addSAfterFirstWord(str: string): string {
   const firstCapitalIndex = str
     .split('')
     .findIndex((char, i) => i !== 0 && char === char.toUpperCase());
-  return str.slice(0, firstCapitalIndex) + 's' + str.slice(firstCapitalIndex);
+  if (firstCapitalIndex === -1) {
+    return str + 's';
+  } else {
+    return str.slice(0, firstCapitalIndex) + 's' + str.slice(firstCapitalIndex);
+  }
 }
 
 export function genColumnsTable(interfaceObj: any): string {
