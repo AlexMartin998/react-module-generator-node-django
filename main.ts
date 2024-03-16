@@ -137,7 +137,7 @@ const writeActions = () => {
     //   }
     // }
 
-    // // write actions index file
+    // // write Actions Index file
     const indexPathActions = `${baseActionsPath}/${indexFilename}`;
     if (!fs.existsSync(indexPathActions)) {
       fs.writeFileSync(indexPathActions, getIndexActionsContent(indexFilename));
