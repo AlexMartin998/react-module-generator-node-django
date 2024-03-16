@@ -57,11 +57,11 @@ export const useCreate${interfaceName} = ({
       queryClient.invalidateQueries({ queryKey: ['${toKebabCase(
         interfaceName
       )}s'] });
-      navigate(returnUrl);
+      navigate && returnUrl && navigate(returnUrl);
       toast.success('${interfaceName} creado correctamente');
     },
     onError: () => {
-      navigate(returnErrorUrl || returnUrl);
+      navigate && returnUrl && navigate(returnErrorUrl || returnUrl || '');
       toast.error('Error al crear el ${interfaceName}');
     },
   });
@@ -80,11 +80,11 @@ export const useUpdate${interfaceName} = ({
       queryClient.invalidateQueries({ queryKey: ['${toKebabCase(
         interfaceName
       )}s'] });
-      navigate(returnUrl);
+      navigate && returnUrl && navigate(returnUrl);
       toast.success('${interfaceName} actualizado correctamente');
     },
     onError: () => {
-      navigate(returnErrorUrl || returnUrl);
+      navigate && returnUrl && navigate(returnErrorUrl || returnUrl || '');
       toast.error('Error al actualizar el ${interfaceName}');
     },
   });
