@@ -67,7 +67,7 @@ const writeActions = () => {
       console.log(`El archivo ${actionsPath} ya existe`);
     }
 
-    //--------------------------------------c
+    //--------------------------------------
     // // write actions file, if exists delete it
     if (fs.existsSync(actionsPath)) fs.unlinkSync(actionsPath);
     if (!fs.existsSync(actionsPath)) {
@@ -134,6 +134,8 @@ const writeActions = () => {
 
     // // write Actions Index file
     const indexPathActions = `${baseActionsPath}/${indexFilename}`;
+    // if exists delete it - no problem 'cause it will have one line
+    if (fs.existsSync(indexPathActions)) fs.unlinkSync(indexPathActions);
     if (!fs.existsSync(indexPathActions)) {
       fs.writeFileSync(indexPathActions, getIndexActionsContent(indexFilename));
     } else {
