@@ -14,12 +14,14 @@ type GetActionsCodeParams = {
   interfaceObj?: any;
   endPoint?: string;
   idModelKey?: string;
+  parentModule?: string;
 };
 export function getActionsCode({
   interfaceName,
   interfaceObj,
   endPoint,
   idModelKey,
+  parentModule,
 }: GetActionsCodeParams): string {
   return `import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -27,10 +29,10 @@ import { toast } from 'react-toastify';
 import { ${interfaceName}, ${
     addSAfterFirstWord(interfaceName.split('PaginatedRes')[0]) + 'PaginatedRes'
   }, MutationParams } from '@/shared/interfaces';
-import { sisrecobAPI } from '@/shared/axios';
+import { ${parentModule ? parentModule : 'app'}API } from '@/shared/axios';
 import { getUrlParams } from '@/shared/utils';
 
-const { get, post, put, remove } = sisrecobAPI();
+const { get, post, put, remove } = ${parentModule ? parentModule : 'app'}API();
 
 ///* tanStack query
 export const useFetch${interfaceName}s = (params?: Get${interfaceName}sParams) => {

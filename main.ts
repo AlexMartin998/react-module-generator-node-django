@@ -54,6 +54,7 @@ const writeActions = () => {
       interfaceText: interfaceObj.getText(),
       endPoint,
       idModelKey,
+      parentModule,
     });
 
     // // write actions file, if exists delete it
@@ -94,6 +95,7 @@ const writeActions = () => {
 
     const indexPathInterfaces = `${interfaceMainPathModule}/${indexFilename}`;
 
+    // interface index file
     if (!fs.existsSync(indexPathInterfaces)) {
       fs.writeFileSync(
         indexPathInterfaces,
@@ -122,16 +124,19 @@ const writeActions = () => {
       }
     }
 
-    // // add import line to module index file
+    // // add import line to Interface Module index file
     const indexPathModuleInterface =
       interfaceMainPathModule.split('/').slice(0, -1).join('/') +
       `/${indexFilename}`;
-    console.log('indexPathModuleInterface', indexPathModuleInterface);
 
     if (!fs.existsSync(indexPathModuleInterface)) {
       fs.writeFileSync(
         indexPathModuleInterface,
-        `export * from './${toKebabCase(firstChildModule)}.interface';`
+        `export * from './${
+          firstChildModule.includes('/')
+            ? toKebabCase(firstChildModule).split('/')[1]
+            : toKebabCase(firstChildModule)
+        }';`
       );
     } else {
       const indexContent = fs.readFileSync(indexPathModuleInterface, 'utf8');
