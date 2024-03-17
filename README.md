@@ -20,7 +20,9 @@ Args:
 - `iname`: InterfaceName
 - `pm`: Parent Module Name (app/sysapp/erp)
 - `fcm`: First Child Module Name (1st level Dir inside of --pm)
-- `ep`: Actual endpotin string to use it in actions file (/some-api-endpoint)
+
+- `ep`: Actual endpotin string to use it in actions file (/some-api-endpoint) (actions)
+- `idmk`: Model ID key
 
 You can run this script with the following command:
 
@@ -29,12 +31,21 @@ You can run this script with the following command:
 bun ./__ts__/main.ts --ts_file="src/shared/interfaces/app/del/test-pro.interface.ts" --iname=TestPro --pm=app --fcm=del
 
 # Example 2
+bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/test/test.interface.ts" --iname=Test --pm=sisrecob --fcm=test --ep="testasd-s-endpoint" --idmk="id_tesssst"
+
+# Example 3
 bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/toma-agua/toma-agua.interface.ts" --iname=TomaAgua --pm=sisrecob --fcm=toma-agua --ep="tomas-agua-endpoint"
+
 ```
 
 Yu can also use this script in nested routes:
 
 ```bash
+# ## New:
+bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/del/deldos/deldos.interface.ts" --iname=Deldos --pm=sisrecob --fcm=del/deldos --ep="del-dos-endpoint" --idmk="id_del_dos"
+
+
+# ## Old:
 # inside of prev del/
 bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/del/nested/nested.interface.ts" --iname=Nested --pm=sisrecob --fcm=del/nested
 
