@@ -17,7 +17,7 @@ import { toKebabCase } from './helpers';
 
 const argv = yargs(hideBin(process.argv)).argv;
 
-// bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/tomas/toma-agua/toma-agua.interface.ts" --iname=TomaAgua --pm=sisrecob --fcm=tomas/toma-agua --ep="tomas-agua-endpoint"
+// bun ./__ts__/main.ts --ts_file="src/shared/interfaces/sisrecob/test/test.interface.ts" --iname=Test --pm=sisrecob --fcm=test --ep="testasd-s-endpoint" --idmk="id_tesssst"
 // // // --------------------------------------
 const tsFile = argv.ts_file as string;
 const interfaceName = argv.iname as string;
@@ -149,7 +149,12 @@ const writeActions = () => {
       ) {
         fs.appendFileSync(
           indexPathModuleInterface,
-          `export * from './${firstChildModule}';`
+          `
+export * from './${
+            firstChildModule.includes('/')
+              ? toKebabCase(firstChildModule).split('/')[1]
+              : toKebabCase(firstChildModule)
+          }';`
         );
       }
     }
