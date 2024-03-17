@@ -25,6 +25,7 @@ const parentModule = argv.pm as string;
 const firstChildModule = argv.fcm as string;
 // optional args
 const endPoint = argv.ep as string;
+const idModelKey = argv.idmk as string;
 
 // Parse the ts_file argument to get the directory structure.
 const tsFileDir = path.dirname(tsFile);
@@ -52,6 +53,7 @@ const writeActions = () => {
       interfaceObj,
       interfaceText: interfaceObj.getText(),
       endPoint,
+      idModelKey,
     });
 
     // // write actions file, if exists delete it
@@ -96,18 +98,24 @@ const writeActions = () => {
       fs.writeFileSync(
         indexPathInterfaces,
         `export * from './${
-          toKebabCase(firstChildModule).split('/')[1]
+          firstChildModule.includes('/')
+            ? toKebabCase(firstChildModule).split('/')[1]
+            : toKebabCase(firstChildModule)
         }.interface';`
       );
     } else {
       const indexContent = fs.readFileSync(indexPathInterfaces, 'utf8');
       if (!indexContent.includes(toKebabCase(firstChildModule))) {
-        const criteriaToCheck = toKebabCase(firstChildModule).split('/')[1];
+        const criteriaToCheck = firstChildModule.includes('/')
+          ? toKebabCase(firstChildModule).split('/')[1]
+          : toKebabCase(firstChildModule);
         if (!indexContent.includes(criteriaToCheck)) {
           fs.appendFileSync(
             indexPathInterfaces,
             `export * from './${
-              toKebabCase(firstChildModule).split('/')[1]
+              firstChildModule.includes('/')
+                ? toKebabCase(firstChildModule).split('/')[1]
+                : toKebabCase(firstChildModule)
             }.interface';`
           );
         }
@@ -115,22 +123,31 @@ const writeActions = () => {
     }
 
     // // add import line to module index file
-    // const indexPathModuleInterface = `${interfaceMainPathModule}/${indexFilename}`;
+    const indexPathModuleInterface =
+      interfaceMainPathModule.split('/').slice(0, -1).join('/') +
+      `/${indexFilename}`;
+    console.log('indexPathModuleInterface', indexPathModuleInterface);
 
-    // if (!fs.existsSync(indexPathModuleInterface)) {
-    //   fs.writeFileSync(
-    //     indexPathModuleInterface,
-    //     `export * from './${toKebabCase(firstChildModule)}.interface';`
-    //   );
-    // } else {
-    //   const indexContent = fs.readFileSync(indexPathModuleInterface, 'utf8');
-    //   if (!indexContent.includes(firstChildModule)) {
-    //     fs.appendFileSync(
-    //       indexPathModuleInterface,
-    //       `export * from './${firstChildModule}';`
-    //     );
-    //   }
-    // }
+    if (!fs.existsSync(indexPathModuleInterface)) {
+      fs.writeFileSync(
+        indexPathModuleInterface,
+        `export * from './${toKebabCase(firstChildModule)}.interface';`
+      );
+    } else {
+      const indexContent = fs.readFileSync(indexPathModuleInterface, 'utf8');
+      if (
+        !indexContent.includes(
+          firstChildModule.includes('/')
+            ? toKebabCase(firstChildModule).split('/')[1]
+            : toKebabCase(firstChildModule)
+        )
+      ) {
+        fs.appendFileSync(
+          indexPathModuleInterface,
+          `export * from './${firstChildModule}';`
+        );
+      }
+    }
 
     // // write Actions Index file
     const indexPathActions = `${baseActionsPath}/${indexFilename}`;
@@ -186,6 +203,7 @@ export * from './${tablePageFilenameWithoutExt}';
           actionsPath,
           parentModule,
           firstChildModule,
+          idModelKey,
         })
       );
     }
@@ -252,6 +270,7 @@ export * from './${tablePageFilenameWithoutExt}';
           interfaceName,
           actionsPath,
           firstChildModule,
+          idModelKey,
         })
       );
     }
@@ -311,7 +330,9 @@ export * from './${updPageFilenameWithoutExt}';`
       fs.writeFileSync(
         saveFormSchemaIndexFile,
         `export * from './${
-          toKebabCase(firstChildModule).split('/')[1]
+          firstChildModule.includes('/')
+            ? toKebabCase(firstChildModule).split('/')[1]
+            : toKebabCase(firstChildModule)
         }.schema';`
       );
     } else {
@@ -320,7 +341,9 @@ export * from './${updPageFilenameWithoutExt}';`
         saveFormSchemaIndexFile,
         'utf8'
       );
-      const criteriaToCheck = toKebabCase(firstChildModule).split('/')[1];
+      const criteriaToCheck = firstChildModule.includes('/')
+        ? toKebabCase(firstChildModule).split('/')[1]
+        : toKebabCase(firstChildModule);
       if (!saveFormSchemaIndexContent.includes(criteriaToCheck)) {
         fs.appendFileSync(
           saveFormSchemaIndexFile,
@@ -344,11 +367,17 @@ export * from './${updPageFilenameWithoutExt}';`
         saveFormSchemaIndexModuleFile,
         'utf8'
       );
-      const criteriaToCheck = toKebabCase(firstChildModule).split('/')[1];
+      const criteriaToCheck = firstChildModule.includes('/')
+        ? toKebabCase(firstChildModule).split('/')[1]
+        : toKebabCase(firstChildModule);
       if (!saveFormSchemaIndexModuleContent.includes(criteriaToCheck)) {
         fs.appendFileSync(
           saveFormSchemaIndexModuleFile,
-          `export * from './${toKebabCase(firstChildModule).split('/')[1]}';`
+          `export * from './${
+            firstChildModule.includes('/')
+              ? toKebabCase(firstChildModule).split('/')[1]
+              : toKebabCase(firstChildModule)
+          }';`
         );
       }
     }
@@ -376,6 +405,7 @@ export * from './${updPageFilenameWithoutExt}';`
           actionsPath,
           parentModule,
           firstChildModule,
+          idModelKey,
         })
       );
     }
@@ -439,7 +469,9 @@ function getIndexActionsContent(indexFilename: string) {
   // if not exist create file and add import line
   if (!fs.existsSync(`${baseActionsPath}/${indexFilename}`)) {
     return `export * from './${
-      toKebabCase(firstChildModule).split('/')[1]
+      firstChildModule.includes('/')
+        ? toKebabCase(firstChildModule).split('/')[1]
+        : toKebabCase(firstChildModule)
     }.actions';`;
   }
 

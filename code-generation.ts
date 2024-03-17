@@ -13,11 +13,13 @@ type GetActionsCodeParams = {
   interfaceText?: string;
   interfaceObj?: any;
   endPoint?: string;
+  idModelKey?: string;
 };
 export function getActionsCode({
   interfaceName,
   interfaceObj,
   endPoint,
+  idModelKey,
 }: GetActionsCodeParams): string {
   return `import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -118,7 +120,9 @@ export type Get${interfaceName}sParams = {
   // filters
   ${getFiltersButId(interfaceObj, true)}
 };
-export type Create${interfaceName}Params = Omit<${interfaceName}, 'id_${interfaceName.toLowerCase()}'>;
+export type Create${interfaceName}Params = Omit<${interfaceName}, '${
+    idModelKey ? idModelKey : 'id_' + interfaceName.toLowerCase()
+  }'>;
 export type Update${interfaceName}Params = {
   id: number;
   data: Create${interfaceName}Params;
@@ -169,10 +173,12 @@ export function getTablePageCode({
   interfaceObj,
   parentModule,
   firstChildModule,
+  idModelKey,
 }: GetActionsCodeParams & {
   actionsPath: string;
   parentModule: string;
   firstChildModule: string;
+  idModelKey?: string;
 }): string {
   // find firstChildModule in actionsPath and slipt it
   const actionsPathSplit = actionsPath.split(firstChildModule);
@@ -249,7 +255,9 @@ const ${addSAfterFirstWord(interfaceName)}Page: React.FC<${addSAfterFirstWord(
       subtitle: '¿Está seguro que desea editar este ${interfaceName}?',
       onConfirm: () => {
         setConfirmDialogIsOpen(false);
-        navigate(\`\${${returnUrl}}/editar/\${${interfaceName.toLowerCase()}.id_${interfaceName.toLowerCase()}}\`);
+        navigate(\`\${${returnUrl}}/editar/\${${interfaceName.toLowerCase()}.${
+    idModelKey ? idModelKey : 'id_' + interfaceName.toLowerCase()
+  }}\`);
       },
     });
   };
@@ -261,7 +269,9 @@ const ${addSAfterFirstWord(interfaceName)}Page: React.FC<${addSAfterFirstWord(
       subtitle: '¿Está seguro que desea eliminar este ${interfaceName}?',
       onConfirm: () => {
         setConfirmDialogIsOpen(false);
-        delete${interfaceName}.mutate(${interfaceName.toLowerCase()}.id_${interfaceName.toLowerCase()}!);
+        delete${interfaceName}.mutate(${interfaceName.toLowerCase()}.${
+    idModelKey ? idModelKey : 'id_' + interfaceName.toLowerCase()
+  }!);
       },
     });
   };
@@ -332,7 +342,8 @@ export function getUpdatePageCode({
   interfaceName,
   actionsPath,
   firstChildModule,
-}): string {
+  idModelKey,
+}: any): string {
   const actionsPathSplit = actionsPath.split(firstChildModule);
   const actionsPathModule = (actionsPathSplit[0] + firstChildModule).replace(
     'src/',
@@ -355,9 +366,9 @@ const Update${interfaceName}Page: React.FC<Update${interfaceName}PageProps> = ()
   const { data, isLoading } = useGet${interfaceName}(+id!);
 
   if (isLoading) return null;
-  if (!data?.data?.id_${interfaceName.toLowerCase()}) return <Navigate to={${getReturnUrlTablePageVarName(
-    interfaceName
-  )}} />;
+  if (!data?.data?.${
+    idModelKey ? idModelKey : 'id_' + interfaceName.toLowerCase()
+  }) return <Navigate to={${getReturnUrlTablePageVarName(interfaceName)}} />;
 
   return <Save${interfaceName}
     title="Editar ${interfaceName}"
@@ -376,10 +387,12 @@ export function getSaveFormComponentCode({
   interfaceObj,
   // parentModule,
   firstChildModule,
+  idModelKey,
 }: GetActionsCodeParams & {
   actionsPath: string;
   parentModule: string;
   firstChildModule: string;
+  idModelKey?: string;
 }): string {
   // find firstChildModule in actionsPath and slipt it
   const actionsPathSplit = actionsPath.split(firstChildModule);
@@ -463,8 +476,12 @@ const Save${interfaceName}: React.FC<Save${interfaceName}Props> = ({ title, ${in
     if (!isValid) return;
 
     ///* upd
-    if (${interfaceName.toLowerCase()}?.id_${interfaceName.toLowerCase()}) {
-      update${interfaceName}Mutation.mutate({ id: ${interfaceName.toLowerCase()}.id_${interfaceName.toLowerCase()}, data }
+    if (${interfaceName.toLowerCase()}?.${
+    idModelKey ? idModelKey : 'id_' + interfaceName.toLowerCase()
+  }) {
+      update${interfaceName}Mutation.mutate({ id: ${interfaceName.toLowerCase()}.${
+    idModelKey ? idModelKey : 'id_' + interfaceName.toLowerCase()
+  }!, data }
       );
       return;
     }
@@ -475,7 +492,9 @@ const Save${interfaceName}: React.FC<Save${interfaceName}Props> = ({ title, ${in
 
   ///* effects
   useEffect(() => {
-    if (!${interfaceName.toLowerCase()}?.id_${interfaceName.toLowerCase()}) return;
+    if (!${interfaceName.toLowerCase()}?.${
+    idModelKey ? idModelKey : 'id_' + interfaceName.toLowerCase()
+  }) return;
     reset(${interfaceName.toLowerCase()});
   }, [${interfaceName.toLowerCase()}, reset]);
 

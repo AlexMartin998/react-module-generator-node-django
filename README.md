@@ -48,6 +48,9 @@ The script takes the following command line arguments:
 - `pm`: The parent module name.
 - `fcm`: The first child module name.
 
+- `ep`: Endpoint fragment path (actions)
+- `idmk`: Model ID key
+
 # Functionality
 
 The script performs the following steps:
